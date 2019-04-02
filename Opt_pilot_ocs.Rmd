@@ -20,8 +20,7 @@ require(gridExtra)
 require(fastGHQuad)
 require(microbenchmark)
 require(reshape2)
-colours <- brewer.pal(8, "Dark2") 
-setwd("U:/Projects/MRC SDF/WP3/R")
+colours <- brewer.pal(8, "Dark2")
 ```
 
 4 things to look at in this framework:
@@ -662,9 +661,15 @@ exp_u_mu <- function(mu, n1, d1, n2, d2, k, rho, mu_0, sd_0, sig)
   #n1 <- n1 + (n1>1)*su 
   #n2 <- n2 + (n2>1)*su*2
   
+  if(rho >= 0){
   (pow1*pow2*(1-exp(-rho*(k[1]*val_d(mu) + k[2]*val_n(n1+n2)))) +
     pow1*(1-pow2)*(1-exp(-rho*(k[2]*val_n(n1+n2) + k[3]))) +
     (1-pow1)*(1-exp(-rho*(k[2]*val_n(n1) + k[3]))))
+  } else {
+    (pow1*pow2*(-1+exp(-rho*(k[1]*val_d(mu) + k[2]*val_n(n1+n2)))) +
+    pow1*(1-pow2)*(-1+exp(-rho*(k[2]*val_n(n1+n2) + k[3]))) +
+    (1-pow1)*(-1+exp(-rho*(k[2]*val_n(n1) + k[3]))))
+  }
 }
 
 # For example,
@@ -715,7 +720,7 @@ Finally, we can optimise over the design parameters $n_1, d_1, n_2, d_2$.
 ```{r}
 # Get optimal programmes for a range of risk aversions
 
-df <- data.frame(rho = seq(0.01, 10, 0.5))
+df <- data.frame(rho = c(seq(-5,-0.1,0.1), 0.001, seq(0.1,5,0.1)))
 rs <- NULL
 x <- c(5, 0.1, 10, 0.1)
 for(i in 1:nrow(df)){
