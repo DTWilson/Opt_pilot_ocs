@@ -1,0 +1,105 @@
+%\documentclass{article} %[twocolumn] 
+\documentclass[sagev]{sagej}
+
+%\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{multirow}
+\usepackage{url}
+
+\setcounter{secnumdepth}{3} %Gives section numbers for cross referencing
+\begin{document}
+
+\runninghead{Wilson et al.}
+
+\title{Optimising tests of efficacy in external pilot trials using Bayesian statistical decision theory}
+
+\author{Duncan T. Wilson\affilnum{1}}%,
+Rebecca E. A. Walwyn\affilnum{1}, 
+Julia Brown\affilnum{1} and 
+Amanda J. Farrin\affilnum{1}}
+
+\affiliation{\affilnum{1}Leeds Institute of Clinical Trials Research, University of Leeds, Leeds, UK} %\\
+%\affilnum{2}Centre for Primary Care \& Public Health, Queen Mary University of London, London, UK}
+
+\corrauth{Duncan T. Wilson, Clinical Trials Research Unit, Leeds Institute of Clinical Trials Research, University of Leeds, Leeds, LS2 9JT, UK}
+\email{d.t.wilson@leeds.ac.uk}
+
+\begin{abstract}
+% (300 word limit for ICTMC)
+
+Intro
+External pilots are commonly carried out prior to a confirmatory trial, running the trial at a small scale to assess feasibility and inform design.
+Efficacy is rarely formally assessed in pilots because their small sample size will lead to low power when using a typical type I error rate such as 0.025 one sided.
+By not testing efficacy, the type I error rate is effectively 1, which implies an infinite preference for type I errors over type II errors.
+The optimal type I error rate in a pilot is likely to be between these two extremes of 0.025 and 1, but it is not currently clear how it can be determined.
+
+Methods
+We consider a Bayesian decision-theoretic approach to choosing the sample size and type I error rate for external pilot trials. We introduce a utility function which accounts for improvements in primary outcome, costs of sampling and of treating patients, and the attitude to risk of the decision-maker, and show how its parameters can be determined for the case at hand. We illustrate through application to an external pilot in mental health comparing an intervention to a control with respect to a normally distributed primary outcome with unknown mean, optimising both the pilot and main trial together; and optimising only the pilot trial, keeping the main trial error rates fixed at conventional levels.
+
+Results
+Across a wide range of utility functions and prior distributions, we find that optimal pilot trials tend to have large type I and low type II errors, and have sample sizes around the conventional levels. The current practice of not testing in the pilot, equivalent to a pilot type I error rate of 1, is shown to be consistently sub-optimal.
+
+Discussion: Taking a Bayesian view of optimising frequentist operating characteristics of pilot trials suggests that current guidance regarding testing efficacy in pilots should be revisited, with testing potentially resulting in substantial efficiency gains. 
+
+\end{abstract}
+
+\keywords{Clinical trial, pilot trial, external pilot, statistical decision theory, optimal design}
+
+\maketitle
+
+\section{Introduction}\label{sec:intro}
+
+Pilot trials are common in complex intervention development, and used to help decide if a confirmatory trial should proceed. Pilot methodology has warned against assessing the efficacy of the intervention in the pilot, primarily because such an assessment (if taking the form of a standard hypothesis test) will have low power to detect an effect of interest, and is therefore likely to incorrectly conclude the intervention is not promising and terminate its development.
+
+The conclusion that a test of efficacy in a pilot will have low power rests on some assumptions. In particular, it assumes that the effect size of interest is of a similar magnitude as in the main trial. This may not be the case if the endpoint in the pilot is different to that in the main trial (as is common in phase II trials); or if we can argue that the idealised setting of the pilot should lead to a larger effect than will be seen in a pragmatic setting. We will take these assumptions as true - the endpoint will be shared, and we cannot justify that the pilot setting will lead to higher effects.
+
+A further assumption is that the type I error rate, or $\alpha$, used in the pilot test will be set at the usual rates of 0.01 - 0.05. Under this restriction, a typical pilot trial as illustrated in Figure \ref{} will indeed have low power, in this case around 21\% for a one-sided test with $\alpha = 0.05$. Having considered this low power unacceptable, by instead deciding to not test at all we are effectively choosing the extreme point on the OC curve with $\alpha = 1, \beta = 0$. This decision reflects an infinite preference for minimising type II over type I errors in pilot trials. Even if the preference is substantial, any finite level would lead to a different choice. For example, consider the point on the OC curve with $\alpha = 0.9, \beta = 0.007$. A 0.1 decrease in type I error at the cost of a 0.007 increase in type II error would be hard to argue against.
+
+If we agree that a type I error rate of 1 is never optimal, how can we find what OCs are optimal? One approach is to view the pilot trial, and subsequent main trial, from the perspective of Bayesian statistical decision theory. If we can define a suitable utility function, and prior distributions on all unknown parameters, we can find the optimal decision (i.e. the best choice or error rates in both trials) by maximising expected utility.
+ 
+\section{Problem}
+
+Although the principles we will use are quite general, for ease of explanation and computational feasibility we will consider the specific case of a normally distributed primary outcome with unknown mean and known standard deviation, which will be used in both the pilot and main trials. Each trial will conduct a t-test of the difference in means between intervention and control groups, and thus can be defined by their type I and II error rates.  
+
+We will consider:
+- Joint optimisation of both trials
+- Optimisation of only the pilot, with standard main trial error rates
+
+To provide comparisons, we will also consider a pilot $\alpha$ of 1 in each of these cases (i.e. optimising the main and keeping it fixed at typical levels). Note that this will then also lead to results where only the main trial is under consideration.
+ 
+\section{Expected utility}
+
+\section{Illustration}
+
+\section{Evaluation}
+
+Focus the evaluation on the choice of utility parameters. In the supplementary Rmarkdown, include a live document version which will allow the user to set their own parameters (including for the prior).
+
+\section{Discussion}
+
+
+
+\begin{acks}
+Acknowledgements.
+\end{acks}
+
+\begin{dci}
+The Authors declare that there is no conflict of interest.
+\end{dci}
+
+\begin{funding}
+This work was supported by the Medical Research Council [grant number xxx].
+\end{funding}
+
+\bibliographystyle{SageV}
+\bibliography{C:/Users/meddwilb/Documents/Literature/Databases/DTWrefs}
+
+\end{document}

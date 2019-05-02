@@ -3,9 +3,8 @@ title: "Decision-theoretic pilot design"
 author: "D. T. Wilson"
 date: "6 June 2018"
 output:
-  pdf_document: default
   html_document: default
-bibliography: U:\\Literature\\Databases\\DTWrefs.bib
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -20,7 +19,7 @@ require(gridExtra)
 require(fastGHQuad)
 require(microbenchmark)
 require(reshape2)
-colours <- brewer.pal(8, "Dark2")
+cols <- brewer.pal(8, "Dark2")
 ```
 
 4 things to look at in this framework:
@@ -34,6 +33,20 @@ colours <- brewer.pal(8, "Dark2")
 4) After the pilot, how can we decide if and how to modify? We can explore the effects by shifting the posteriors. We can elicit the belief about effects, and then design the main trial. In some cases, we might expect the optimal design to include a second pilot trial. Indeed, it would be interesting to know how sure we would have to be about the modification effects to warrent going straight to the main trial.
 
 ## Problem
+
+```{r}
+# Example OC curve for a low powered pilot trial
+alphas <- seq(0,1,0.001)
+betas <- 1-sapply(alphas, function(a) power.t.test(n=30, delta=0.3, sig.level = a, alternative = "o")$power)
+
+df <- data.frame(a = alphas, b =betas)
+
+ggplot(df, aes(a,b)) + geom_line() + coord_fixed() +
+  geom_point(data=df[1+0.05/0.001,], colour=cols[1]) +
+  geom_point(data=df[nrow(df),], colour=cols[2]) +
+  geom_point(data=df[nrow(df)-100,], colour=cols[3]) +
+  theme_minimal()
+```
 
 [@Pearce2018] - Value of information methods to design a clinical trial in a small population to optimise a health economic utility function
 Again, no attitude to risk incorporated into the utility, which is otherwise very simple (proportional to treatment effect, and popullation size, with set-up cost, and implementation costs). But does optimise over both type I error and sample size.
@@ -126,21 +139,33 @@ That is, what change in outcome would we want to see to justify an increase in s
 $$(n, d = 0, C = -) \sim (n, d = \hat{d}, C = +).$$
 We then have the following values for the scaling parameters:
 
-* $\lambda_1 = v_2(\bar{d})/(1 + v_2(\bar{d}) + v_2(\hat{d}))$,
-* $\lambda_2 = 1/(1 + v_2(\bar{d}) + v_2(\hat{d}))$,
-* $\lambda_3 = v_2(\hat{d})/(1 + v_2(\bar{d}) + v_2(\hat{d}))$.
+* $\lambda_n = v_2(\bar{d})/(1 + v_2(\bar{d}) + v_2(\hat{d}))$,
+* $\lambda_d = 1/(1 + v_2(\bar{d}) + v_2(\hat{d}))$,
+* $\lambda_c = v_2(\hat{d})/(1 + v_2(\bar{d}) + v_2(\hat{d}))$.
 
 In our example we will take $\bar{d} = 0.01$, meaning that we would be happy to "pay" a sample size of $n = 100$ for a guarenteed increase in the mean outcome of 0.01. We take $\hat{d} = 0.142$, meaning that if we new the new treatment would improve the mean outcome by 0.142 then we would be indifferent as to whether or not it should be recommended over the control as the standard treatment, bearing in mind the costs associated with implementing such a change. The value 0.142 was in this case arrived at based on the original design which gave a power of 0.8 to detect a difference of 0.2 with a one-sided type I error rate of 0.025. This corresponds to a power of 0.5 at the point $\mu \approx 0.142$, suggesting that this is the true point of indifference or equipoise (this point is described by Willan2005 as "the only non-arbitrary point on the power curve"). Together, these considerations give
-$$\lambda_1 = 0.01533742, \lambda_2 = 0.7668712, \lambda_3 = 0.2177914.$$
+$$\lambda_n = 0.0260800, \lambda_d = 0.7668712, \lambda_c = 0.2070488.$$
 
 ```{r}
+get_ks <- function(d_bar, d_hat)
+{
+  # Get scaling constants
+  #k_n <- k_d*val_d(d_bar)
+  #k_d <- 1/(1 + val_d(d_bar) + val_d(d_hat))
+  #k_c <- k_d*val_d(d_hat)
+  
+  k_d <- 1/(1 + val_d(d_bar) + val_d(d_hat))
+  k_n <- val_d(d_bar)/k_d
+  k_c <- 1 - k_d - k_n
+  
+  return(c(k_d, k_n, k_c))
+}
+
 value <- function(mu, n, d_hat, d_bar)
 {
-  # Get the scaling constants
-  k_d <- 1/(1 + val_d(d_bar) + val_d(d_hat))
-  k_n <- k_d*val_d(d_bar)
-  k_c <- k_d*val_d(d_hat)
-
+  ks <- get_ks(d_bar, d_hat)
+  k_d <- ks[1]; k_n <- ks[2]; k_c <- ks[3]
+  
   v_pos <- k_d*val_d(mu) + k_n*val_n(n)
   v_neg <- 0 + k_n*val_n(n) + k_c
   #v_pos <- k_d*mu + k_n*n
@@ -513,15 +538,15 @@ df <- data.frame(n=seq(0, 100, 1))
 df$d_hat <- 0.142; df$d_bar <- 0.01; df$rho <- 1
 df$sig <- 0.25; df$mu_m <- 0; df$mu_sd <- 0.244949
 
-df <- cbind(df[1:2,],t(apply(df[1:2,], 1, eval_scenario)))
+df <- cbind(df, t(apply(df, 1, eval_scenario)))
 names(df)[8:14] <- c("d", "u", "alpha", "cp", "up", "post_d", "post_0")
 df
 
-#saveRDS(df, "df.Rda")
+#saveRDS(df, "./data/opt_phIII.Rda")
 ```
 
 ```{r}
-df <- readRDS("df.Rda")
+df <- readRDS("./data/opt_phIII.Rda")
 ```
 
 Plotting the results:
@@ -588,31 +613,29 @@ df_sen <- df_sen[,c(3,1,2,4:6)]
 df_sen <- cbind(df_sen, t(apply(df_sen, 1, get_opt_design)))
 names(df_sen)[7:10] <- c("n", "d", "alpha", "cp")
 
-#saveRDS(df_sen, "df_sen.Rda")
+#saveRDS(df_sen, "./data/opt_phIII_sen.Rda")
 ```
 
 ```{r}
-df_sen <- readRDS("df_sen.Rda")
+df_sen <- readRDS("./data/opt_phIII_sen.Rda")
 ```
 
 ```{r}
-#df_sen2 <- df_sen[df_sen$n < 148,]
-df_sen2 <- df_sen
-ggplot(df_sen2, aes(alpha, 1-cp, colour=rho, alpha=1-d_bar)) + geom_point() + 
+ggplot(df_sen, aes(alpha, 1-cp, colour=rho, alpha=1-d_bar)) + geom_point() + 
   theme_minimal()
 ```
 
 Here we have created a grid of points with $\bar{d} \in [0.001, 0.15], \rho \in [-3, 3]$. For each point in the grid we find the optimal design. The operating characteristics of these are plotted above. We see that there are no parameter values in the ranges considered which lead to typical operating characteristics of $\alpha = 0.025$ and $\beta \in [0.1, 0.2]$. To understand how these parameters influence the optimal design, we can make some plots:
 
 ```{r}
-p1 <- ggplot(df_sen2, aes(d_bar, cp, colour=rho, group=rho)) + geom_point() + geom_line()
-p2 <- ggplot(df_sen2, aes(rho, cp, colour=d_bar, group=d_bar)) + geom_point() + geom_line()
-p3 <- ggplot(df_sen2, aes(d_bar, alpha, colour=rho, group=rho)) + geom_point() + geom_line()
-p4 <- ggplot(df_sen2, aes(rho, alpha, colour=d_bar, group=d_bar)) + geom_point() + geom_line()
-p5 <- ggplot(df_sen2, aes(d_bar, n, colour=rho, group=rho)) + geom_point() + geom_line()
-p6 <- ggplot(df_sen2, aes(rho, n, colour=d_bar, group=d_bar)) + geom_point() + geom_line()
-p7 <- ggplot(df_sen2, aes(d_bar, d, colour=rho, group=rho)) + geom_point() + geom_line()
-p8 <- ggplot(df_sen2, aes(rho, d, colour=d_bar, group=d_bar)) + geom_point() + geom_line()
+p1 <- ggplot(df_sen, aes(d_bar, cp, colour=rho, group=rho)) + geom_point() + geom_line()
+p2 <- ggplot(df_sen, aes(rho, cp, colour=d_bar, group=d_bar)) + geom_point() + geom_line()
+p3 <- ggplot(df_sen, aes(d_bar, alpha, colour=rho, group=rho)) + geom_point() + geom_line()
+p4 <- ggplot(df_sen, aes(rho, alpha, colour=d_bar, group=d_bar)) + geom_point() + geom_line()
+p5 <- ggplot(df_sen, aes(d_bar, n, colour=rho, group=rho)) + geom_point() + geom_line()
+p6 <- ggplot(df_sen, aes(rho, n, colour=d_bar, group=d_bar)) + geom_point() + geom_line()
+p7 <- ggplot(df_sen, aes(d_bar, d, colour=rho, group=rho)) + geom_point() + geom_line()
+p8 <- ggplot(df_sen, aes(rho, d, colour=d_bar, group=d_bar)) + geom_point() + geom_line()
 
 grid.arrange(p1,p2,p3,p4,p5,p6,p7,p8, ncol=2)
 ```
@@ -645,10 +668,12 @@ sd_0 <- sig <- 0.25
 mu_0 <- 0
 rho <- 1
 
-k_d <- 0.7668712
-k_n <- 0.01533742
-k_c <- 0.2177914
-k <- c(k_d, k_n, k_c)
+#k_d <- 0.7668712
+#k_n <- 0.01533742
+#k_c <- 0.2177914
+#k <- c(k_d, k_n, k_c)
+
+k <- get_ks(0.01, 0.142)
 
 su <- 10 # set-up cost, in patient units
 
@@ -717,15 +742,23 @@ mean(replicate(100000, exp_u_mu(rnorm(1, mu_0, sd_0), n1=5, d1=0.01, n2=30, d2=0
 
 Finally, we can optimise over the design parameters $n_1, d_1, n_2, d_2$.
 
-```{r}
+```{r, eval=F}
 # Get optimal programmes for a range of risk aversions
+k <- get_ks(0.01, 0.142)
 
-df <- data.frame(rho = c(seq(-5,-0.1,0.1), 0.001, seq(0.1,5,0.1)))
+df <- expand.grid(rho = rev(c(seq(-5,-0.001,0.2), 0.001, seq(0.001,5,0.2))),
+                 d_bar = seq(0.002, 0.02, 0.002))
+
+#df <- data.frame(rho = rev(c(seq(-5,-0.001,0.5), 0.001, seq(0.001,5,0.5))))
+
 rs <- NULL
-x <- c(5, 0.1, 10, 0.1)
+x <- c(10, 0.001, 10, 0.001)
 for(i in 1:nrow(df)){
-    opt <- psoptim(x, exp_u, k=k, rho=df$rho[i], mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule,
-             lower = c(0,-2,0,0), upper= c(100,3,100,3))
+  k <- get_ks(df$d_bar[i], 0.142)
+  #opt <- psoptim(x, exp_u, k=k, rho=df$rho[i], mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule, 
+   #                lower = c(0,-2,0,0), upper= c(300,3,300,3), control=list(maxit=1000))
+  opt <- genoud(exp_u, 4, Domains = matrix(c(6,-2,0,0,300,3,300,3),ncol=2), print.level = 0, boundary.enforcement = 2, starting.values = x,
+                 k=k, rho=df$rho[i], mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule)
   x <- opt$par
 
   r <- c(x, 1-pnorm(x[2]/sqrt(2*(sig^2)/x[1])),
@@ -738,30 +771,36 @@ for(i in 1:nrow(df)){
 
 df <- cbind(df, t(rs))
 
-names(df) <- c("rho", "n1", "d1", "n2", "d2", "a1", "b1", "a2", "b2")
-df$n1 <- df$n1/100; df$n2 <- df$n2/100; 
-df <- melt(df, id.vars = c("rho"))
-df <- cbind(df[substr(df$variable,2,2) == "1",], df[substr(df$variable,2,2) == "2",2:3])
-names(df) <- c("rho", "t1", "v1", "t2", "v2")
-df <- melt(df, id.vars = c("rho", "t1", "t2"))
-df <- df[,c(1,2,4,5)]
-df$t1 <- substr(df$t1,1,1)
-df$variable <- substr(df$variable,2,2)
-names(df) <- c("rho", "var", "trial", "val")
+names(df) <- c("rho", "d_bar", "n1", "d1", "n2", "d2", "a1", "b1", "a2", "b2")
 
-#saveRDS(df, "./../Papers/3.1/joint.Rda")
+#saveRDS(df, "./data/opt_joint.Rda")
+```
 
-ggplot(df[df$var != "d",], aes(rho, val, colour=trial, linetype=var)) + geom_line() +
+```{r}
+df <- readRDS("./data/opt_joint.Rda")
+
+df2 <- df#[df$d_bar == 0.02,]
+df2$n1 <- df2$n1/100; df2$n2 <- df2$n2/100; 
+df2 <- melt(df2, id.vars = c("rho", "d_bar"))
+df2 <- cbind(df2[substr(df2$variable,2,2) == "1",], df2[substr(df2$variable,2,2) == "2",3:4])
+names(df2)[3:6] <- c("t1", "v1", "t2", "v2")
+df2 <- melt(df2, id.vars = c("rho", "d_bar", "t1", "t2"))
+df2 <- df2[,c(1,2,3,5,6)]
+df2$t1 <- substr(df2$t1,1,1)
+df2$variable <- substr(df2$variable,2,2)
+names(df2) <- c("rho", "d_bar", "var", "trial", "val")
+
+ggplot(df2[df2$var != "d",], aes(rho, val, colour=trial, linetype=var)) + geom_line() +
   theme_minimal() +
-  scale_colour_manual(values=colours) +
-  scale_y_continuous(breaks=seq(0,1,0.1))
+  scale_colour_manual(values=cols) +
+  scale_y_continuous(breaks=seq(0,1,0.1)) + 
+  transition_states(d_bar)
+
 ```
 
 Note that we may be able to obtain derivatives of the expected utility with respect to the four design variables, which could lead to a faster or more reliable optimisation.
 
 We can further extend the method to integrate over more complex priors, e.g. over the mean effect and the standard deviation.
-
-
 
 
 We haven't included any set-up costs in the above. A multi-criteria optimisation algorithm let's us obtain a range of different options balancing the total maximum sample size and the expected utility. In our running example we get an optimum design with a phase II of $n_1 = `r df[1,"n1"]`, \alpha_1 = `r df[1,"alpha1"]`, 1-\beta_1 = `r df[1,"cp1"]`$ and a phase III of $n_2 = `r df[1,"n2"]`, \alpha_2 = `r df[1,"alpha2"]`, 1-\beta_2 = `r df[1,"cp2"]`$. Contrast the phase III portion with the optimal design obtained previously - $n = 28, \alpha = 0.0098, 1-\beta=0.745$. How can we explain the differences? We are apparently happier to have a larger sample, and for the benefits from that to go towards decreases in both type I and II error rates. We might expect to be happy with a larger phase II sample because there is a chance of not running the phase III trial at all - so the expected sample size is lower. 
@@ -1056,7 +1095,7 @@ Moving back to the pilot design stage, we are looking at an EVSI type calculatio
 
 A model of development. Suppose there is a stream of interventions made available over a set period of time. The trend in effectivess increase with time. There is a lot of variability around this trend. Each interventions is assessed in a trial with the same type I and II error rates.
 
-```{r}
+```{r, eval=F}
 mus <- seq(0,1,0.001)
 mus <- rnorm(length(mus), mus, 0.2)
 
