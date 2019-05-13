@@ -1,7 +1,6 @@
 ---
-title: "Decision-theoretic pilot design"
+title: "Optimising tests of efficacy in external pilot trials using Bayesian statistical decision theory"
 author: "D. T. Wilson"
-date: "6 June 2018"
 output:
   html_document: default
   pdf_document: default
@@ -22,112 +21,76 @@ require(reshape2)
 cols <- brewer.pal(8, "Dark2")
 ```
 
-4 things to look at in this framework:
 
-1) Given the proposed form of the utility function, what phase III designs are admissable? That is, what type I and II error rates arise as optimal policies for some parameters of the utility?
+## Introduction
 
-2) Can testing in a pilot be sensible? Designing the pilot and phase III simultaneously, see for (if any) scenarios it is optimal to have a pilot and test in it (expecting high type I errors in the pilot). Connects with literature saying that tests in pilots will be underpowered. Clustered and non-clustered cases.
+Pilot trials are common in complex intervention development, and used to help decide if a confirmatory trial should proceed. Pilot methodology has warned against assessing the efficacy of the intervention in the pilot, primarily because such an assessment (if taking the form of a standard hypothesis test) will have low power to detect an effect of interest, and is therefore likely to incorrectly conclude the intervention is not promising and terminate its development.
 
-3) How can we use pilot data to design the main trial? Moving beyon the stop/go formulation, the Bayesian approach means we can update our distributions on all our parameters. Feasibility parameters all feed into utility via power and effectiveness so use same utility. Binary rates and continuous outcomes (possibly at cluster level) all conjugate, so computatinally feasible.
+The conclusion that a test of efficacy in a pilot will have low power rests on some assumptions. In particular, it assumes that the effect size of interest is of a similar magnitude as in the main trial. This may not be the case if the endpoint in the pilot is different to that in the main trial (as is common in phase II trials); or if we can argue that the idealised setting of the pilot should lead to a larger effect than will be seen in a pragmatic setting. We will take these assumptions as true - the endpoint will be shared, and we cannot justify that the pilot setting will lead to higher effects.
 
-4) After the pilot, how can we decide if and how to modify? We can explore the effects by shifting the posteriors. We can elicit the belief about effects, and then design the main trial. In some cases, we might expect the optimal design to include a second pilot trial. Indeed, it would be interesting to know how sure we would have to be about the modification effects to warrent going straight to the main trial.
+A further assumption is that the type I error rate, or $\alpha$, used in the pilot test will be set at the usual rates of 0.01 - 0.05. Under this restriction, a typical pilot trial as illustrated in Figure \ref{} will indeed have low power, in this case around 21\% for a one-sided test with $\alpha = 0.05$. Having considered this low power unacceptable, by instead deciding to not test at all we are effectively choosing the extreme point on the OC curve with $\alpha = 1, \beta = 0$. This decision reflects an infinite preference for minimising type II over type I errors in pilot trials. Even if the preference is substantial, any finite level would lead to a different choice. For example, consider the point on the OC curve with $\alpha = 0.9, \beta = 0.007$. A 0.1 decrease in type I error at the cost of a 0.007 increase in type II error would be hard to argue against.
+
+If we agree that a type I error rate of 1 is never optimal, how can we find what OCs are optimal? One approach is to view the pilot trial, and subsequent main trial, from the perspective of Bayesian statistical decision theory. If we can define a suitable utility function, and prior distributions on all unknown parameters, we can find the optimal decision (i.e. the best choice or error rates in both trials) by maximising expected utility.
 
 ## Problem
 
-```{r}
-# Example OC curve for a low powered pilot trial
-alphas <- seq(0,1,0.001)
-betas <- 1-sapply(alphas, function(a) power.t.test(n=30, delta=0.3, sig.level = a, alternative = "o")$power)
+The specific problem we will focus on involves choosing the type I and II error rates for a pilot trial, denoted $\alpha_1, \beta_1$, and the subsequent confirmatory trial, denoted $\alpha_2, \beta_2$. Both trials will randomise participants equally to a control and an intervention arm, and will conduct a z-test comparing the group means. The primary endpoint is normally distributed with known variance but with an unknown difference in group expectations, with this uncertainty encpasulated in a normal prior distribution.
 
-df <- data.frame(a = alphas, b =betas)
+We will consider two versions of this problem:
+* Find the optimal values for $(\alpha_1, \beta_1, \alpha_2, \beta_2)$;
+* Find the optimal $(\alpha_1, \beta_1)$, constraning the main trial at conventional $\alpha_2 = 0.025, \beta_2 = 0.2$.
 
-ggplot(df, aes(a,b)) + geom_line() + coord_fixed() +
-  geom_point(data=df[1+0.05/0.001,], colour=cols[1]) +
-  geom_point(data=df[nrow(df),], colour=cols[2]) +
-  geom_point(data=df[nrow(df)-100,], colour=cols[3]) +
-  theme_minimal()
-```
-
-[@Pearce2018] - Value of information methods to design a clinical trial in a small population to optimise a health economic utility function
-Again, no attitude to risk incorporated into the utility, which is otherwise very simple (proportional to treatment effect, and popullation size, with set-up cost, and implementation costs). But does optimise over both type I error and sample size.
-
-[@Miller2018] - Approaches to sample size calculation for clinical trials in rare diseases
-
-[@Stallard2003] - Decision-Theoretic Designs for Phase II Clinical Trials Allowing for Competing Studies
-
-[@Stallard2016] - Determination of the optimal sample size for a clinical trial accounting for the population size
+To provide a direct comparison in each case, we will also consider designs with the pilot OCs set at the current conventional levels of $\alpha_1 = 1, \beta_1 = 0$. Note that this special case will correspond to the optimisation of a confirmatory trial, which may be a useful result in its own right.
 
 
+## Maximising expected utility
 
-Consider the design of a two-arm parallel group trial with a continuous, normally distributed primamry endpoint with known common varaiance. We are interested in the defference in means between the two groups, $\mu = \mu_e - \mu_c$. Given data from the trial, a t-test of the null hypothesis $H_0: \mu = 0$ will be done at some pre-specified type I error rate of $\alpha$. We assume a simple model of decision making: if the null hypothesis is rejected the new treatment will be used, and if not, the control will be used. Under this model, a rejection of the null will lead to an average change in the popullation endpoint of $\mu$, and a failure to reject will give a change of 0.
+In what follows we will focus initially on the special case where only the confimatory trial is to be designed, before elaborating to the case of a pilot and confirmatory trial together.
 
-Our problem is to decide what sample size $n$ (split evenly amongst each arm), and type I error $\alpha$, should be used. We propose to solve this problem using Baysian decision-theory, by defining a utility function and finding the values of these parameters that maximises the expected utility with respect to a prior distrbution on the only unknown parameter, $\mu$.
+### Attributes and value
 
-To keep things concrete we will a running example based on one described in [@OHagan2005]. The shared known standard deviation of the outcome is $\sigma = 0.25$. The prior distribtion on $\mu$ is normal with mean $m = 0$ and standard deviation $s = 0.25$ (note we have centred the prior at 0, representing a skeptical view of the treatment effect). The design proposed using the standard approach gives a sample size of 25, giving a power of approximately 0.8 to detect a difference of 0.2. 
-
-```{r}
-power <- function(mu, alpha, n, sig)
-{
-  # Large-sample z test
-  prob <- 1-pnorm(qnorm(1-alpha)-mu/sqrt(2*(sig^2)/n))
-  
-  # Small-sample t-test
-  #df <- 2*n-2
-  #ncp <- sqrt(n)*mu/(sqrt(2)*sig)
-  #prob <- 1-pt(qt((1-alpha), df), df=df, ncp=ncp)
-  
-  if(n != 0){
-    return(prob)
-  } else {
-    return(0)
-  }
-}
-
-prior_mu <- function(mu, mu_m, mu_sd)
-{
-  return(dnorm(mu, mu_m, mu_sd))
-}
-```
-
-## Attributes and value
-
-What should our preferences be based on? We suggest there are three attributes in our problem:
+We construct a utility function by first defining a _value_ function. A value function $v(y)$ should encode our prferences on some attributes $y$ under conditions of certainty, in the sense that $v(y) > v(v')$ iff we prefer $y$ to $y'$. We first need to define the attributes we are interested in and the values they can take. We consider the following:
 
 * the sample size, $n$ 
 * cost incurred by changing the current standrd treatment, denoted $C \in \{-,+\}$
-* any change in the average outcome, denoted $\delta$
+* change in the average outcome, denoted $\mu$
 
-The first two items are costs, and the last may be a benefit. Given the fixed nature of the trial design, the sample size is deterministic. The decision to reccomend a new treatment, and the resulting change of outcome, are both uncertain at the design stage. Before we construct a utility function, which will describe our preferences under this uncertainty, we first define a value function by considering our preferneces uncer conditions of certainty. That is, we want to define a function $v(n, C, \delta)$ such that
+We want to define a function $v(n, C, \mu)$ such that
 
-$$(n_1, C_1, \delta_1) \prec (n_2, C_2, \delta_2) \Leftrightarrow v(n_1, C_1, \delta_1) < v(n_2, C_2, \delta_2),$$
-where $x \prec y$ means we prefer $x$ to $y$. To construct the value function we first note that each pair of attributes is preferentially independant of the remaining attribute - that is, the tradeoffs between any two attributes when the remaining attribute is kept fixed do not depend on the level it is fixed at. Given these assumptions, our preferences can be characterised by a value function of the form 
+$$(n, C, \mu) \prec (n', C', \mu') \Leftrightarrow v(n, C, \mu) < v(n', C', \mu'),$$
 
-$$ v(n, C, \delta) = \lambda_1 v_1(n) + \lambda_2 v_2(C) + \lambda_3 v_3(\delta),$$
+where $y \prec y'$ means we prefer $y$ to $y'$. To construct the value function we first assume that each pair of attributes is preferentially independant of the remaining attribute - that is, the tradeoffs between any two attributes when the remaining attribute is kept fixed do not depend on the level it is fixed at. Then, our preferences can be characterised by a value function of the form 
+
+$$ v(n, C, \delta) = k_n v_n(n) + k_c v_c(C) + k_d v_3(\mu),$$
 where
 
 a. $v_i(worst) = 0, v_i(best) = 1, i = 1,2,3$;
 b. $0 < \lambda_i < 1, i = 1,2,3$;
 c. $\sum_{i=1}^3 \lambda_i = 1$.
 
-We now need to define the component value functions $v_i$ and the corresponding weights $\lambda_i$. First consider the functions. We assume that the cost of sampling is constant, and so $v_1$ is linear, and similarly assume linearity in the value of change in outcome. Attribute $C$ only has two levels. We use identity value functions for all attributes, which will keep the notation simple. SO,
+We now need to define the component value functions $v_n, v_c, v_d$ and the corresponding weights $k_n, k_c, k_d$. First consider the functions. We assume that the cost of sampling is constant, and so $v_n$ is linear, and similarly assume linearity in the value of change in outcome, $v_d$. Attribute $C$ only has two levels. We use identity value functions for all attributes, which will keep the notation simple. So,
 
-$$ v(n, C, \delta) = \lambda_n n + \lambda_c C + \lambda_d \delta,$$
+$$ v(n, C, \delta) = k_n n + k_c C + k_d \mu,$$
 
-We need to choose the scaling constants which will determine the realtive importance of each attribute. Given that $\lambda_n + \lambda_c + \lambda_d = 1$, we can deduce the parameter values given two sets of equivalence judgements. First, we ask for the change in outcome $\bar{d}$ that would be needed for us to judge
+We need to choose the scaling constants which will determine the realtive importance of each attribute. Given that $k_n + k_c + k_d = 1$ (because the scale of the value function is abitrary), we can deduce the parameter values given two sets of equivalence judgements. First, we ask for the change in outcome $\bar{d}$ that would be needed for us to judge that
 
 $$(n = 0, d = 0, C = +) \sim (n = 100, d = \bar{d}, C = +)$$.
 
-That is, what change in outcome would we want to see to justify an increase in sample size from 0 to 100? Secondly, we ask for the change in outcome that would be needed to justify the changing of the standard treatment from the control to the new treatment. That is, we require $\hat{d}$ such that
+That is, what change in outcome would we want to see to justify an increase in sample size from 0 to 100? Secondly, we ask for the change in outcome $\hat{d}$ that would be needed to judge that
 
 $$(n, d = 0, C = -) \sim (n, d = \hat{d}, C = +).$$
+
+That is, what change in outcome would justify the changing of the standard treatment from the control to the new treatment.
+
 We then have the following values for the scaling parameters:
 
-* $\lambda_d = 1/(1 + \hat{d} + \bar{d}/100)$,
-* $\lambda_n = -\lambda_d \bar{d}/100$,
-* $\lambda_c = \lambda_d \hat{d}$.
+* $k_d = 1/(1 + \hat{d} + \bar{d}/100)$,
+* $k_n = -\lambda_d \bar{d}/100$,
+* $k_c = \lambda_d \hat{d}$.
 
-In our example we will take $\bar{d} = 0.01$, meaning that we would be happy to "pay" a sample size of $n = 100$ for a guarenteed increase in the mean outcome of 0.01. We take $\hat{d} = 0.142$, meaning that if we new the new treatment would improve the mean outcome by 0.142 then we would be indifferent as to whether or not it should be recommended over the control as the standard treatment, bearing in mind the costs associated with implementing such a change. The value 0.142 was in this case arrived at based on the original design which gave a power of 0.8 to detect a difference of 0.2 with a one-sided type I error rate of 0.025. This corresponds to a power of 0.5 at the point $\mu \approx 0.142$, suggesting that this is the true point of indifference or equipoise (this point is described by Willan2005 as "the only non-arbitrary point on the power curve"). Together, these considerations give
-$$\lambda_n = 0.0260800, \lambda_d = 0.7668712, \lambda_c = 0.2070488.$$
+In our example we will take $\bar{d} = 0.01$, meaning that we would be happy to "pay" a sample size of $n = 100$ for a guarenteed increase in the mean outcome of 0.01. We take $\hat{d} = 0.142$, meaning that if we knew the new treatment would improve the mean outcome by 0.142 then we would be indifferent as to whether or not it should be recommended over the control as the standard treatment, bearing in mind the costs associated with implementing such a change. 
+
+(The value 0.142 was in this case arrived at based on the original design which gave a power of 0.8 to detect a difference of 0.2 with a one-sided type I error rate of 0.025. This corresponds to a power of 0.5 at the point $\mu \approx 0.142$, suggesting that this is the true point of indifference or equipoise. This point is described by [@Willan2005] as "the only non-arbitrary point on the power curve"). 
 
 ```{r}
 get_ks <- function(d_bar, d_hat)
@@ -156,48 +119,29 @@ value <- function(mu, n, d_hat, d_bar)
 }
 ```
 
-
-## Utility
+### Utility
 
 The value function represents our preferences under conditions of certainty, but in reality we are uncertain about both whether the current standard treatment will be changed (i.e. if the null hypothesis is rejected) and associated change in outcome. We therefore need to defeine a utility function to encode our preferences for distributions defined on our attributes, which will allow us to calculate expected utiliuty and use this to guide our decisions. 
 
-To deduce the form of our utility function, we first note that we have one attribute (the change in outcome) which is utility independant of the other two attributes. This means that our preferneces for gambles on the change of outcome, with the other attributes kept fixed at some level, does not depend on those levels. So, regardless of how much we have sampled, or whether or not we have incurred the cost of changing the standrad treatment or not, our preferneces for gambles on the change in outcome will be the same. Given this together with the additive form of the value function, the utility function must have one of the following forms:
+To deduce the form of our utility function, we first argue that we have one attribute (the change in outcome) which is utility independant of the other two attributes. This means that our preferneces for gambles on the change of outcome, with the other attributes kept fixed at some level, does not depend on those levels. So, regardless of how much we have sampled, or whether or not we have incurred the cost of changing the standrad treatment or not, our preferneces for gambles on the change in outcome will be the same. Given this assumption together with the additive form of the value function, the utility function must have one of the following forms:
 
-* $u(n, d, C) = 1 - e^{-\rho v(n, d, C)}, \rho \neq 0$,
+* $u(n, d, C) = 1 - e^{-\rho v(n, d, C)}, \rho > 0$,
 * $u(n, d, C) = v(n, d, C), \rho = 0$.
+* $u(n, d, C) = -1 + e^{-\rho v(n, d, C)}, \rho > 0$,
 
 That is, the utlity function over the scaler attribute $V$ must be of the exponential form, which implies constant absolute absolute risk aversion. The coefficient of absolute risk aversion is
 $$\frac{-u''(v)}{u'(v)} = \rho.$$
 Assessment of $u$ then just requires $\rho$. Becuase $d$ is utility indpendant of $n$ and $C$, we can think about gambles on $d$ whilst ignoring the value of the other attributes. Doing so, we find the point $d^*$ which is the certainty equivalent to a gamble which will give $d = 0$ and $d = 1.5$ each with probability 0.5. If
-$$v_d(d^*) = 0.5 v_d(0) + 0.5 v_d(1.5)$$
-then the utlity function must be additive and $\rho = 0$. If the left-hand side is is greater then $\rho > 0$, and if the right hand side is greater, $\rho < 0$. Either way, we can determine $\rho$ by setting the utilities equal and solving:
+
+$d^* = 0.5 * 0 + 0.5 * 1.5 = 0.75$$
+
+then $\rho = 0$ and the utlity function is additive. If the left-hand side is is greater then $\rho > 0$ (risk averse), and if the right hand side is greater, $\rho < 0$ (risk neutral). Either way, we can determine $\rho$ by setting the utilities equal and solving:
+
 $$u(n, d^*, C) = 0.5 u(n, 0, C) + 0.5 u(n, 1.5, C)$$
-$$
-\begin{aligned}
-e^{-\rho v_2(d^*)} &= 0.5 + 0.5 e^{-\rho} \\
--\rho v_2(d^*) &= 2\log{0.5} - \rho \\
-\rho &= \frac{2\log{0.5}}{1 - v_2(d^*)}.
-\end{aligned}
-$$
 
-```{r}
-util <- function(mu, n, d_hat, d_bar, rho)
-{
-  vals <- value(mu, n, d_hat, d_bar)
-  v_pos <- vals[1]; v_neg <- vals[2]
-  
-  if(rho == 0){
-    u_pos <- v_pos
-    u_neg <- v_neg
-  } else {
-    u_pos <- (1 - exp(-rho*v_pos))
-    u_neg <- (1 - exp(-rho*v_neg))
-  } 
-  return(c(u_pos, u_neg))
-}
-```
+### MEU for a single confirmatory trial
 
-We can get an exact expression for our expected utility, avoiding any numerical integration. Denote the sample mean in the trial by $x$, and the critical value in the test $d$. Utility function is $u(\mu, x)$. Then,
+Before considering the more general problem of jointly designing a pilot and confirmatory trial, we first look at the special case where the pilot OCs are fixed at $\alpha_1 = 1, \beta_1 = 0$ and only the confirmatory trial OCs are to be determined. In this case we can get an exact expression for our expected utility, avoiding any numerical integration. Denote the sample mean in the trial by $x$, and the critical value in the test by $d$. The utility function is denoted by $u(\mu, x)$. Then,
 
 $$
 \begin{aligned}
@@ -206,29 +150,36 @@ E_{\mu | x} [u(\mu, x)] &= E_{\mu | x}[1 - e^{-\rho(k_d\mu + k_n n) I\{x > d\} -
 \end{aligned}
 $$
 
-
 Since the second term doens't include $\mu$, we can take the expectation operator out. For the first term we have:
 
 $$
 E_{\mu | x}[1 - e^{-\rho(k_d\mu + k_n n)}] = 1 - e^{\rho k_n n} E_{\mu | x}e^{-a k_d \mu}]
 $$
-The expectation here is over the posterior distribution for $\mu$ given $x$, which (assuming $\sigma^2$ is known) is normal by conjugacy, and specifically
+The expectation here is over the posterior distribution for $\mu$ given $x$, which (assuming $\sigma^2$ is known) is normal by conjugacy, specifically
+
 $$
-\mu |x \sim N(\mu_1 = \sigma_1^2(\frac{\mu_0}{\sigma_0^2} + \frac{xn}{2\sigma^2}), \sigma_1^2 = 1/(\frac{1}{\sigma_0^2} + \frac{n}{2\sigma^2})).
+\mu |x \sim N \left( \mu_1 = \sigma_1^2 \left( \frac{\mu_0}{\sigma_0^2} + \frac{xn}{2\sigma^2} \right), ~ \sigma_1^2 = 1/\left( \frac{1}{\sigma_0^2} + \frac{n}{2\sigma^2} \right) \right).
 $$
-(note that this follows from the normal likelihod for the sample difference, $x | \mu  \sim N(\mu, \frac{2\sigma^2}{n})$). It takes the form as a moment generating function. For a normaly distibuted $Y \sim N(a, b^2)$,
+
+Note that this follows from the normal likelihod for the sample difference, $x | \mu  \sim N(\mu, 2\sigma^2/n)$. It takes the form as a moment generating function. For a normaly distibuted $Y \sim N(a, b^2)$,
+
 $$
 E[e^{tY}] = e^{ta + \frac{b^2 t^2}{2}}.
 $$
 This gives us
+
 $$
 E_{\mu | x}[1 - e^{-\rho(k_d\mu + k_n n)}] = 1 - e^{-\rho k_n n} \left(e^{t\mu_1 + \frac{\sigma_1^2 t^2}{2}} \right),
 $$
-where $t=\rho k_d$. This then all gives
+
+where $t=\rho k_d$. This then all gives an expected utility conditional on $x$ of
+
 $$
 E_{\mu | x} [u(\mu, x)] = I\{x > d\} \left[1 - e^{-\rho k_n n} \left(e^{t\mu_1 + \frac{\sigma_1^2 t^2}{2}} \right) \right] + I\{x < d\}\left[1 - e^{-\rho(k_n n + k_c)}\right].
 $$
+
 We now need to take the expectation of this over the marginal distribution for $x$.
+
 $$
 \begin{aligned}
 E[u(\mu, x)] &= E_x\left[ E_{\mu | x} [u(\mu, x)] \right] \\
@@ -236,27 +187,35 @@ E[u(\mu, x)] &= E_x\left[ E_{\mu | x} [u(\mu, x)] \right] \\
  E_x\left[ I\{x < d\}\left(1 - e^{-\rho(k_n n + k_c)}\right) \right].
 \end{aligned}
 $$
+
 Expanding the first term:
+
 $$
 \begin{aligned}
 E_x\left[ I\{x > d\} \left(1 - e^{-\rho k_n n} e^{t\sigma_1^2(\frac{\mu_0}{\sigma_0^2} + \frac{xn}{2\sigma^2}) + \frac{\sigma_1^2 t^2}{2}} \right) \right] &= Pr[x > d] \left( 1 - e^{-\rho k_n n} e^{\frac{\sigma_1^2 t^2}{2}} e^{\frac{t\sigma_1^2 \mu_0}{\sigma_0^2}}   \right) E_x \left[ e^{\frac{t\sigma_1^2 x n}{2\sigma^2}} \right].
 \end{aligned}
 $$
-The probability of $x > d$ is just the unconditional power. For the expectation, we again use a moment generating function. Here, the sample difference $x$ is normally distributed $N(\mu_0, \sigma_x^2 = \sigma^2 + \frac{2\sigma^2}{n})$ but we have conditioned on $x > d$ and so have a truncated normal. The moment generating function for $Y \sim N(a,b^2), Y > d$ is
+
+The probability of $x > d$ is just the unconditional power:
+
+$$
+Pr[x > d] = 1- \Phi\left(\frac{d-\mu_0}{\sqrt{\sigma_0^2 + \frac{2\sigma^2}{n}}} \right)
+$$
+
+For the expectation, we again use a moment generating function. Here, the sample difference $x$ is normally distributed $N(\mu_0, \sigma_x^2 = \sigma^2 + \frac{2\sigma^2}{n})$ but we have conditioned on $x > d$ and so have a truncated normal. The moment generating function for $Y \sim N(a,b^2), Y > d$ is
+
 $$
 E[e^{rY}] =  \left( e^{ar + \frac{b^2 r^2}{2} } \right) \left(\frac{1 - \Phi(\frac{d-a}{b} - br)}{1 - \Phi(\frac{d-a}{b} )} \right)
 $$
 
 So, for our case we have
+
 $$
  E_x \left[ e^{\frac{t\sigma_1^2 x n}{2\sigma^2}} \right] = \left( e^{\mu_0 r + \frac{\sigma_x^2 r^2}{2} } \right) \left(\frac{1 - \Phi(\frac{d-\mu_0}{\sigma_x} - \sigma_x r)}{1 - \Phi(\frac{d-\mu_0}{\sigma_x})} \right),
 $$
-where $r = \frac{t \sigma_1^2 n}{2\sigma^2}$. The unconditional power is
-$$
-Pr[x > d] = 1- \Phi\left(\frac{d-\mu_0}{\sqrt{\sigma_0^2 + \frac{2\sigma^2}{n}}} \right)
-$$
 
-Finally, putting everything together, we get
+where $r = \frac{t \sigma_1^2 n}{2\sigma^2}$. Finally, putting everything together, we get
+
 $$
 \begin{aligned}
 E[u(\mu, x)] =& E_x\left[ E_{\mu | x} [u(\mu, x)] \right] \\
@@ -265,7 +224,7 @@ E[u(\mu, x)] =& E_x\left[ E_{\mu | x} [u(\mu, x)] \right] \\
 \end{aligned}
 $$
 
-This is all for the case $\rho > 0$, but the case $\rho < 0$ follows immediately. For the case $\rho = 0$ the utility function is the value function. So The expected value is:
+This is all for the case $\rho > 0$, but the case $\rho < 0$ follows immediately. For the case $\rho = 0$ the utility function is the value function. The expected utility is then
 
 $$
 \begin{aligned}
@@ -276,49 +235,17 @@ E[u(\mu, x)] =& E_x\left[ E_{\mu | x} [u(\mu, x)] \right] \\
 $$
 where $\mu_1$ is, as before, the mean of the posterior distribution on $\mu$ given $x$:
 $$
-\mu_1 = \sigma_1^2(\frac{\mu_0}{\sigma_0^2} + \frac{xn}{2\sigma^2}), ~ \sigma_1^2 = 1/(\frac{1}{\sigma_0^2} + \frac{n}{2\sigma^2}).
+\mu_1 = \sigma_1^2 \left( \frac{\mu_0}{\sigma_0^2} + \frac{xn}{2\sigma^2} \right), ~ \sigma_1^2 = 1/\left( \frac{1}{\sigma_0^2} + \frac{n}{2\sigma^2} \right).
 $$
 We are then left with calculating the expected value of this posterior mean with respect to the marginal distribution of $x$ conditional on $x > d$. Since $x$ is normally distrubuted with mean $\mu_0$ and variance $\sigma_x^2 = \sigma_0^2 + 2\sigma^2/n$, the conditional distribution is a truncated normal with mean
+
 $$
 \mu_0 + \sigma_x \phi\left(\frac{d - \mu_0}{\sigma_x} \right)/\left(1 - \Phi\left(\frac{d - \mu_0}{\sigma_x}\right) \right).
 $$
 
+Implementing all this gives the following function for expected utility:
 
-We can check against a simulation:
-```{r, eval=T}
-mu_0 <- 0; sd_0 <- 0.244949; sig <- 0.25; rho <- -2
-
-d <- 0.2; n <- 6
-
-k <- get_ks(0.01, 0.142)
-k_d <- k[1]; k_n <- k[2]; k_c <- k[3]
-
-test_u <- function(mu, x, rho, mu_0)
-{
-  go <- x > d
-  if(rho > 0){
-   1 - exp(-rho*(k_d*mu + k_n*n)*go - rho*(k_n*n + k_c)*(1-go)) 
-  } else if(rho < 0){
-    -1 + exp(-rho*(k_d*mu + k_n*n)*go - rho*(k_n*n + k_c)*(1-go)) 
-  } else {
-    (k_d*mu + k_n*n)*go + (k_n*n + k_c)*(1-go)
-  }
-}
-
-test_sim <- function(sig, rho, mu_0, sd_0)
-{
-  mu <- rnorm(1, mu_0, sd_0)
-  x <- rnorm(1, mu, sqrt(2*sig^2/n))
-  c(mu, x, test_u(mu, x, rho, mu_0))
-}
-
-# Simulated expected utility
-N <- 1000000
-us <- replicate(N, test_sim(sig, rho, mu_0, sd_0)[3])
-mean(us)
-c(mean(us) - qnorm(0.99)*sqrt(var(us)/N), mean(us) + qnorm(0.99)*sqrt(var(us)/N))
-
-# Now the formula
+```{r}
 exp_u <- function(d, n, d_hat, d_bar, rho, sig, mu_0, sd_0)
 {
   k <- get_ks(d_bar, d_hat)
@@ -350,270 +277,53 @@ exp_u <- function(d, n, d_hat, d_bar, rho, sig, mu_0, sd_0)
     k_n*n + k_d*((sd_1^2)*(mu_0/(sd_0^2) + m_x_trunc*n/(2*sig^2)))*(1 - pnorm((d-mu_0)/sig_x))  + k_c*( pnorm((d-mu_0)/sig_x) )
   }
 }
+```
+
+We can check the function against a simulation:
+
+```{r, eval=T}
+test_u <- function(mu, x, rho, mu_0, k)
+{
+  k_d <- k[1]; k_n <- k[2]; k_c <- k[3]
+  go <- x > d
+  if(rho > 0){
+   1 - exp(-rho*(k_d*mu + k_n*n)*go - rho*(k_n*n + k_c)*(1-go)) 
+  } else if(rho < 0){
+    -1 + exp(-rho*(k_d*mu + k_n*n)*go - rho*(k_n*n + k_c)*(1-go)) 
+  } else {
+    (k_d*mu + k_n*n)*go + (k_n*n + k_c)*(1-go)
+  }
+}
+
+test_sim <- function(sig, rho, mu_0, sd_0, k)
+{
+  mu <- rnorm(1, mu_0, sd_0)
+  x <- rnorm(1, mu, sqrt(2*sig^2/n))
+  c(mu, x, test_u(mu, x, rho, mu_0, k))
+}
+
+d_bar <- 0.01; d_hat <- 0.142; mu_0 <- 0; sd_0 <- 0.244949; sig <- 0.25; rho <- 1; n <- 20
+k <- get_ks(d_bar, d_hat)
+
+# Simulated expected utility
+N <- 1000000
+us <- replicate(N, test_sim(sig, rho, mu_0, sd_0, k)[3])
+# 98% confidence interval around the MC estimate
+c(mean(us) - qnorm(0.99)*sqrt(var(us)/N), mean(us) + qnorm(0.99)*sqrt(var(us)/N))
 
 exp_u(d, n, d_hat, d_bar, rho, sig, mu_0, sd_0)
 ```
 
-To assist with optimisation, we can find the derivatives. First, re-write the expected utility as a function of the critical value $d$:
+### MEU for a pilot and confirmatory trial programme
+
+Denote pilot and main sample size by $n_1, n_2$ and repsective sample means $x_1, x_2$. The ciritcal values against which these are compared are $d_1, d_2$. The utility is now
+
 $$
-[1-f(d)]\left[1-x\left(\frac{1-g(d)}{1-h(d)}\right)\right] + f(d)(1-y) = 1 - f(d) - x\left(\frac{1-g(d)}{1-h(d)}\right) + f(d)x\left(\frac{1-g(d)}{1-h(d)}\right) + f(d)(1-y).
+u(\mu, x_1, x_2) = 1 - e^{-\rho(k_d\mu + k_n (n_1+n_2))I[x_1>d_1, x_2>d_2] -\rho(k_n (n_1+n_2) + k_c)I[x_1 > d_1, x_2 < d_2] - \rho(k_n n_1 + k_c)I[x_1 < d_1]}.
 $$
-Its derivative is:
-$$
--f'(d) - x\left(\frac{-g'(d)}{1-h(d)} + \frac{(1-g(d))h'(d)}{(1-h(d))^2}\right) + f'(d) x\left(\frac{1-g(d)}{1-h(d)}\right) + f(d)x\left(\frac{-g'(d)}{1-h(d)} + \frac{(1-g(d))h'(d)}{(1-h(d))^2}\right) + f'(d)(1-y),
-$$
-where
-$$
-\begin{aligned}
-f'(d) &= \phi\left(\frac{d-\mu_0}{\sqrt{\sigma_0^2 + \frac{2\sigma^2}{n}}}\right) \frac{1}{\sqrt{\sigma_0^2 + \frac{2\sigma^2}{n}}} \\
-g'(d) &= \phi\left(\frac{d-\mu_0}{\sigma_x} - \sigma_x r\right)\frac{1}{\sigma_x} \\
-h'(d) &= \phi\left(\frac{d-\mu_0}{\sigma_x}\right)\frac{1}{\sigma_x}
-\end{aligned}
-$$
-Implementing in R and checking against the numerical gradient:
-```{r}
-require(numDeriv)
 
-f <- function(d){pnorm((d-mu_0)/sqrt(sd_0^2 + 2*sig^2/n))}
-g <- function(d){pnorm((d-mu_0)/sig_x - sig_x*r)}
-h <- function(d){pnorm((d-mu_0)/sig_x)}
-f_d <- function(d){dnorm((d-mu_0)/sqrt(sd_0^2 + 2*sig^2/n))/sqrt(sd_0^2 + 2*sig^2/n)}
-g_d <- function(d){dnorm((d-mu_0)/sig_x - sig_x*r)/sig_x}
-h_d <- function(d){dnorm((d-mu_0)/sig_x)/sig_x}
+It has not been possible to obtain a closed-form expression for the expectaed utility over the joint distribution of $\mu, x_1, x_2$. However, the expected utility conditional on $\mu$ is
 
-d <- 0.14
-sd_1 <- sqrt(1/(1/sd_0^2 + n/(2*sig^2)))
-t <- -rho*k_d
-sig_x <- sqrt(sd_0^2 + 2*sig^2/n)
-r <- (t * sd_1^2 *n)/(2*sig^2)
-x <- exp(-rho*k_n*n) *
-                                 exp(sd_1^2 *t*t/2) *
-                                 exp(t*sd_1^2 *mu_0/sd_0^2) *
-                                 exp(mu_0*r + (sig_x^2*r*r/2))
-
-d_deriv <- function(d, x, k_n, k_c)
-{
-  -f_d(d) - x*(-g_d(d)/(1-h(d)) + (1-g(d))*h_d(d)/(1-h(d))^2) + f_d(d)*x*((1-g(d))/(1-h(d))) + f(d)*x*(-g_d(d)/(1-h(d)) + (1-g(d))*h_d(d)/(1-h(d))^2) + f_d(d)*(1 - exp(-rho*(k_n*n + k_c)))
-}
-
-d_deriv(0.14, x=x, k_n=k_n, k_c=k_c)
-grad(exp_u, 0.14, n=n, d_hat=d_hat, d_bar=d_bar, rho=rho, sig=sig, mu_0=mu_0, sd_0=sd_0)
-```
-Now try optimising:
-```{r}
-optim(rnorm(1,0,0.1), exp_u, gr=NULL, control=list(fnscale=-1), method="BFGS",
-      n=n, d_hat=d_hat, d_bar=d_bar, rho=rho, sig=sig, mu_0=mu_0, sd_0=sd_0)
-```
-
-```{r, eval=F}
-ptm <- proc.time()
-pars <- replicate(1000, optim(rnorm(1,0,0.1), exp_u, gr=NULL, control=list(fnscale=-1), method="BFGS",
-                              n=n, d_hat=d_hat, d_bar=d_bar, rho=rho, sig=sig, mu_0=mu_0, sd_0=sd_0)$par)
-proc.time() - ptm
-
-# Compare with previous optimisation
-ptm <- proc.time()
-pars <- replicate(10,get_opt_alpha(n, d_hat, d_bar, rho, sig, mu_m, mu_sd))
-proc.time() - ptm
-
-# Over 2000 times as fast
-```
-
-## Optimal design
-
-Bayesian statistical decision theory tells us we should make decisions to maximise expected utility. We illustrate this principle with our example problem by considering a range of potential sample sizes $n = 5, 10, \ldots , 100$ and finding the value of $\alpha$ in each case that maximises expected utility as calculated by `exp_util()`.
-
-```{r}
-get_opt_alpha <- function(n, d_hat, d_bar, rho, sig, mu_m, mu_sd)
-{
-  # Evaluate on a set of points to get biundaries for the optimum
-  ds <- seq(0,2,0.01)
-  samples <- sapply(ds, exp_util, n=n, d_hat=d_hat, d_bar=d_bar, rho=rho, sig=sig, mu_m=mu_m, mu_sd=mu_sd)
-  lower <- ds[which.min(samples)] - 0.1
-  upper <- ds[which.min(samples)] + 0.1
-  # Optimise
-  opt <- optim(0, exp_util, n=n, d_hat=d_hat, d_bar=d_bar, rho=rho, sig=sig, mu_m=mu_m, mu_sd=mu_sd, method="Brent", lower=lower, upper=upper)
-  return(c(opt$par, opt$value))
-}
-
-assurance <- function(n, alpha, sig, mu_m, mu_sd)
-{
-  g <- function(mu, alpha, n, sig, mu_m, mu_sd)
-  {
-    return(power(mu, alpha, n, sig)*prior_mu(mu, mu_m, mu_sd))
-  }
-  V <- Vectorize(g, "mu") 
-  ass <- integrate(V, -Inf, Inf, alpha=alpha, n=n, sig=sig, mu_m=mu_m, mu_sd=mu_sd)$value
-  return(ass)
-}
-
-post_probs <- function(n, d, sig, d_hat, mu_m, mu_sd)
-{
-  # Use conjugacy to get posterior for mu
-  mean <- (mu_m/(mu_sd^2) + d/(2*(sig^2)/n))/(1/(mu_sd^2)+1/(2*(sig^2)/n))
-  var <- 1/(1/(mu_sd^2)+1/(2*(sig^2)/n))
-  # post probs that mu is greater than a) d_hat, and b) 0
-  return(c(1-pnorm(d_hat, mean, sqrt(var)), 1-pnorm(0, mean, sqrt(var))))
-}
-
-eval_scenario <- function(x)
-{
-  n <- x[1]; d_hat <- x[2]; d_bar <- x[3]; rho <- x[4]; sig <- x[5]; mu_m <- x[6]; mu_sd <- x[7]
-  result <- get_opt_alpha(n, d_hat, d_bar, rho, sig, mu_m, mu_sd)
-  d <- result[1]; u <- result[2]
-  alpha <- (n==0)*0 + (n!=0)*(1-pnorm(d*sqrt(n/(2*sig^2))))
-  # Get conditional power at the original "mcid" of 0.2
-  cp <- power(0.2, alpha, n, sig)
-  # Get unconditional power
-  up <- assurance(n, alpha, sig, mu_m, mu_sd)
-  # Get the posterior probability Pr[mu > d_hat | d]
-  posts <- post_probs(n, d, sig, d_hat, mu_m, mu_sd)
-  return(c(d, -u, alpha, cp, up, posts))
-}
-
-get_opt_alpha2 <- function(n, d_hat, d_bar, rho, sig, mu_m, mu_sd)
-{
-  # Evaluate on a set of points to get biundaries for the optimum
-  
-  opt <- optim(rnorm(1,0,0.1), exp_u, gr=NULL, control=list(fnscale=-1), method="BFGS",
-                              n=n, d_hat=d_hat, d_bar=d_bar, rho=rho, sig=sig, mu_0=mu_m, sd_0=mu_sd)
-  return(c(opt$par, opt$value))
-}
-
-eval_scenario2 <- function(x)
-{
-  # Using the exact expected utility
-  n <- x[1]; d_hat <- x[2]; d_bar <- x[3]; rho <- x[4]; sig <- x[5]; mu_m <- x[6]; mu_sd <- x[7]
-  
-  result <- get_opt_alpha2(n, d_hat, d_bar, rho, sig, mu_m, mu_sd)
-  d <- result[1]; u <- result[2]
-  alpha <- (n==0)*0 + (n!=0)*(1-pnorm(d*sqrt(n/(2*sig^2))))
-  # Get conditional power at the original "mcid" of 0.2
-  cp <- power(0.2, alpha, n, sig)
-  # Get unconditional power
-  up <- assurance(n, alpha, sig, mu_m, mu_sd)
-  # Get the posterior probability Pr[mu > d_hat | d]
-  posts <- post_probs(n, d, sig, d_hat, mu_m, mu_sd)
-  return(c(d, -u, alpha, cp, up, posts))
-}
-```
-
-A table of scenarios to optimise:
-```{r, eval=F, echo=T}
-df <- data.frame(n=seq(1, 100, 1))
-df$d_hat <- 0.142; df$d_bar <- 0.01; df$rho <- 0
-df$sig <- 0.25; df$mu_m <- 0; df$mu_sd <- 0.244949
-
-df <- cbind(df, t(apply(df, 1, eval_scenario2)))
-names(df)[8:14] <- c("d", "u", "alpha", "cp", "up", "post_d", "post_0")
-
-
-ggplot(df, aes(n, -u, colour=alpha)) + geom_point()
-```
-
-The design which gives the maximum expected utility is a sample size of $n = 28$ and a type I error rate of $\alpha = 0.0104$. This gives a power of 0.75 to detect the original MCID of 0.2, and gives an unconditional probability of rejecting the null of 0.27. The null hypothesis will be rejected if the sample mean is greater than 0.156, or equivalently, if the posterior probability that $\mu > 0.142$ is greater than 0.5113. Note that the lowest expected utility is given by a sample size of $n = 0$. We can include a set-up cost into the value function `val_n()` (in units of sample size) to correct for this, leading to a minimum sample size for the trial to be better than doing nothing at all.
-
-The type I and II error rates of the optimal design are not the standard choices of $\alpha = 0.025$ (one-sided) and $\beta = 0.2$. In fact, for most values of $n$ we have considered the corresponding optimal $\alpha$ is much lower than the traditional choice. Let's plot the optimal error rate pairs for each choice of $n$:
-
-```{r}
-ggplot(df, aes(alpha, cp, colour=cut_interval(df$n,10))) + geom_point() +
-  geom_hline(yintercept = 0.8, linetype = 2) +
-  geom_vline(xintercept = df[order(abs(df$cp - 0.8)),][1,"alpha"], linetype = 2)
-
-df[order(abs(df$cp - 0.8)),][1,"alpha"]
-df[order(abs(df$cp - 0.9)),][1,"alpha"]
-```
-
-We see that for higher conditional powers are typically accompanied by lower type I error rates. For an "acceptable" level of power at the MCID (i.e. > 0.8), we require $\alpha = 0.00362$ - nearly ten times smaller than the traditional choice. For a power of 0.9, this reduces further to $\alpha = 0.00012$.
-
-For this very simple problem, searching for an optimal design in terms of frequentist operating characteristcs is equivalent to searching for a $(n, d)$ pair where $d$ is the threshold for decision making agaisnt which the sample mean is compared. This would not hold for more complex problems - for example, a t-test's acceptance region is defined over the sample eman and the sample variance. It means that we can view the optial design as a solution to several problems. As well as searching over OC's, we could frame it as searching over $n$ and a threshold posterior probability for the mean. For example, our optimal design from above has $n = 28$ and gives a postivie decision when $Pr(\mu > \hat{d} | x) > 0.520$. Or, when	$Pr(\mu > 0 | x) > 0.988$. The point is that this optimal design is optimal for the expected utility maximisation problem - we have not resetricted the search in any way. So we could say that the design that maximises expected utility has $n = 28$, and that's all we need to say, because we know that after observing $x$ we will make the decision with MEU. It just so happens that for this very simple problem, we can map out in advance exactly which sample means will lead to a positive and a negative decision, and this is the $d$ that we report above.
-
-## Sensitivity
-
-Beyond the example as provided in OHagan2005, we have introduced three parameters, $\bar{d}$, $\hat{d}$ and $rho$,, which define out utility function (along with our assumptions of additive and utiluty independance). We have argued that $\hat{d}$ can be derived based on the original choice of trial design based on frequentist operating characteristics, and so are left with a subjective specification of $\bar{d}$ and $rho$. Recall that the former is the change in outcome considered to be equivalent (under conditions of certainty) to an increase in sample size from 0 to 100, and the latter is our attitude to risk. Let's examine the sensitivity of the optimal design to the choice of these parameters
-
-```{r, eval=F, echo=T}
-eval_design <- function(des, x)
-{
-  if(des[1] < 2 | des[1] > 150 | des[2] < 0 | des[2] > 0.5) return(10000)
-  n <- des[1]; d <- des[2]
-  d_hat <- x[1]; d_bar <- x[2]; rho <- x[3]; sig <- x[4]; mu_m <- x[5]; mu_sd <- x[6]
-  u <- exp_u(d, n, d_hat, d_bar, rho, sig, mu_m, mu_sd)
-  return(-u)
-}
-  
-get_opt_design <- function(x)
-{
-  opt <- optim(c(20, 0.1), eval_design, x=x)
-  #opt <- optim(c(20, 0.1), eval_design, x=x, lower=c(0.001,0), upper=c(150,0.3))
-  n <- opt$par[1]; d <- opt$par[2]
-  sig <- x[4]
-  alpha <- 1-pnorm(d/sqrt(2*(sig^2)/n))
-  cp <- power(0.2, alpha, n, sig)
-  
-  # Check "optimal" design is better than a null design with n=0
-  u_0 <- eval_design(c(0.001,0.01), x=x)
-  if(u_0 < opt$value){
-    Print("RRRR")
-    alpha <- 0; cp <- 0; n<- 0; d <- 0
-  }
-  
-  return(c(n,d,alpha,cp))
-}
-
-df_sen <- expand.grid(d_bar=seq(0.001, 0.05, length.out = 2), rho=seq(-3,3,length.out = 21))#[-11])
-
-df_sen$d_hat <- 0.142; df_sen$sig <- 0.25; df_sen$mu_m <- 0; df_sen$mu_sd <- 0.244949
-df_sen <- df_sen[,c(3,1,2,4:6)]
-
-df_sen <- cbind(df_sen, t(apply(df_sen, 1, get_opt_design)))
-names(df_sen)[7:10] <- c("n", "d", "alpha", "cp")
-
-ggplot(df_sen, aes(alpha, 1-cp, colour=rho, alpha=1-d_bar)) + geom_point() + 
-  theme_minimal()
-
-
-df2 <- df_sen[,c(2,3,7,9,10)]
-df2$n <- df2$n/100
-df2 <- melt(df2, id.vars = c("rho", "d_bar"))
-names(df2) <- c("rho", "d_bar", "var", "val")
-
-ggplot(df2, aes(d_bar, val, linetype=var)) + geom_line() +
-  theme_minimal() + 
-  transition_states(rho)
-```
-
-Here we have created a grid of points with $\bar{d} \in [0.001, 0.15], \rho \in [-3, 3]$. For each point in the grid we find the optimal design. The operating characteristics of these are plotted above. We see that there are no parameter values in the ranges considered which lead to typical operating characteristics of $\alpha = 0.025$ and $\beta \in [0.1, 0.2]$. To understand how these parameters influence the optimal design, we can make some plots:
-
-```{r}
-p1 <- ggplot(df_sen, aes(d_bar, cp, colour=rho, group=rho)) + geom_point() + geom_line()
-p2 <- ggplot(df_sen, aes(rho, cp, colour=d_bar, group=d_bar)) + geom_point() + geom_line()
-p3 <- ggplot(df_sen, aes(d_bar, alpha, colour=rho, group=rho)) + geom_point() + geom_line()
-p4 <- ggplot(df_sen, aes(rho, alpha, colour=d_bar, group=d_bar)) + geom_point() + geom_line()
-p5 <- ggplot(df_sen, aes(d_bar, n, colour=rho, group=rho)) + geom_point() + geom_line()
-p6 <- ggplot(df_sen, aes(rho, n, colour=d_bar, group=d_bar)) + geom_point() + geom_line()
-p7 <- ggplot(df_sen, aes(d_bar, d, colour=rho, group=rho)) + geom_point() + geom_line()
-p8 <- ggplot(df_sen, aes(rho, d, colour=d_bar, group=d_bar)) + geom_point() + geom_line()
-
-grid.arrange(p1,p2,p3,p4,p5,p6,p7,p8, ncol=2) + theme_minimal()
-```
-
-
-What can we say from these?
-* sample size is almost exclusively detemined by $\bar{d}$, not by the attitude to risk;
-* Both parameters influence the optimal cuut-off point, and thus the type I and II error rates;
-* As we become more risk averse, the optimal design reduces the type I error rate and increases the type II;
-* As the cost of sampling increases, optimal type II error reduces and type I increases.
-
-## Extensions
-
-### Designing a pilot and III trial simultaneously
-
-Extending the formulation above, denote pilot and main sample size by $n_1, n_2$ and repsective sample means $x_1, x_2$. The ciritcal values against which these are compared are $d_1, d_2$. The utility is now
-$$
-u(\mu, x_1, x_2) = 1 - e^{-\rho(k_dv_d(\mu) + k_n v_n(n_1+n_2))I[x_1>d_1, x_2>d_2] -\rho(k_n v_n(n_1+n_2) + k_c)I[x_1 > d_1, x_2 < d_2] - \rho(k_n v_n(n_1) + k_c)I[x_1 < d_1]}.
-$$
-It has not been possible to obtain a closed-form expression for the expectaed utility over the joint distribution of $\mu, x_1, x_2$. However, the expectation conditional on $\mu$ is
 $$
 \begin{aligned}
 E_{x_1, x_2, | \mu}[u(\mu, x_1, x_2)] =& Pr[x_1>d_1, x_2>d_2 | \mu]\left(1-e^{\rho(k_dv_d(\mu) + k_n v_n(n_1+n_2)}\right) + \\
@@ -621,46 +331,53 @@ E_{x_1, x_2, | \mu}[u(\mu, x_1, x_2)] =& Pr[x_1>d_1, x_2>d_2 | \mu]\left(1-e^{\r
 & Pr[x_1 < d_1 | \mu] \left( 1-e^{-\rho(k_n v_n(n_1) + k_c)} \right).
 \end{aligned}
 $$
+
 Since the sample means are distributed as $x_i | \mu \sim N(\mu, 2\sigma^2/n_i)$ and are independant conditional on $\mu$, the relavant probabilities are easily calculated.
 
 ```{r}
-d1 <- d2 <- 0.14
-n1 <- n2 <- 20
-sd_0 <- sig <- 0.25
-mu_0 <- 0
-rho <- 1
-
-k <- get_ks(0.01, 0.142)
-
 # Condition on mu first
 exp_u_mu <- function(mu, n1, d1, n2, d2, k, rho, mu_0, sd_0, sig)
 {
   pow1 <- 1-pnorm(d1, mu, sqrt(2*sig^2/n1))
   pow2 <- 1-pnorm(d2, mu, sqrt(2*sig^2/n2))
   
-  if(rho >= 0){
-  (pow1*pow2*(1-exp(-rho*(k[1]*val_d(mu) + k[2]*val_n(n1+n2)))) +
-    pow1*(1-pow2)*(1-exp(-rho*(k[2]*val_n(n1+n2) + k[3]))) +
-    (1-pow1)*(1-exp(-rho*(k[2]*val_n(n1) + k[3]))))
+  if(rho > 0){
+    pow1*pow2*(1-exp(-rho*(k[1]*mu + k[2]*(n1+n2)))) +
+    pow1*(1-pow2)*(1-exp(-rho*(k[2]*(n1+n2) + k[3]))) +
+    (1-pow1)*(1-exp(-rho*(k[2]*n1 + k[3])))
+  } else if(rho < 0) {
+    pow1*pow2*(-1+exp(-rho*(k[1]*mu + k[2]*(n1+n2)))) +
+    pow1*(1-pow2)*(-1+exp(-rho*(k[2]*(n1+n2) + k[3]))) +
+    (1-pow1)*(-1+exp(-rho*(k[2]*n1 + k[3])))
   } else {
-    (pow1*pow2*(-1+exp(-rho*(k[1]*val_d(mu) + k[2]*val_n(n1+n2)))) +
-    pow1*(1-pow2)*(-1+exp(-rho*(k[2]*val_n(n1+n2) + k[3]))) +
-    (1-pow1)*(-1+exp(-rho*(k[2]*val_n(n1) + k[3]))))
+    pow1*pow2*(k[1]*mu + k[2]*(n1+n2)) +
+    pow1*(1-pow2)*(k[2]*(n1+n2) + k[3]) +
+    (1-pow1)*(k[2]*n1 + k[3])
   }
 }
 
 # For example,
+d1 <- d2 <- 0.14
+n1 <- n2 <- 20
+sd_0 <- sig <- 0.25; mu_0 <- 0; rho <- 1
+
+k <- get_ks(0.01, 0.142)
+
 exp_u_mu(0.2, n1, d1, n2, d2, k, rho, mu_0, sd_0, sig)
 ```
 
 We are then left with integrating out the $\mu$:
+
 $$
-E[u(\mu, x_1, x_2)] = \int E_{x_1, x_2, | \mu}[u(\mu, x_1, x_2)] f(\mu) d\mu, 
+E[u(\mu, x_1, x_2)] = \int E_{x_1, x_2, | \mu} [ u(\mu, x_1, x_2)] p(\mu) d\mu, 
 $$
-where $f(\mu)$ is the normal prior density. Because we are integrating with a normal density weighting function, we can use Gauss-Hermite Quadrature (as implemented in the `fastGHQuad` package) to evaluate the integral efficiently and accurately. Specifically, Gauss-Hermite approximates integrals of the form
+
+where $p(\mu)$ is the normal prior density. Because we are integrating with a normal density weighting function, we can use Gauss-Hermite Quadrature (as implemented in the `fastGHQuad` package) to evaluate the integral efficiently and accurately. Specifically, Gauss-Hermite approximates integrals of the form
+
 $$
 \int_{-\infty}^{\infty} e^{-x^2}f(x) dx \approx \sum_{i=1}^{n} w_i f(x_i).
 $$
+
 To use when integrating over a normal distribution $y \sim N(\mu, \sigma^2)$, we just use the tranform $y = \sqrt{2}\sigma x + \mu$ so the integration points are now $x_i\sqrt{2}\sigma + \mu$ and the weights are $w_i / \sqrt{\pi}$.
 
 ```{r}
@@ -668,16 +385,18 @@ To use when integrating over a normal distribution $y \sim N(\mu, \sigma^2)$, we
 rule <- gaussHermiteData(100)
 rule$x <- rule$x*sqrt(2)*sd_0 + mu_0
 
-exp_u <- function(x, k, rho, mu_0, sd_0, sig, rule)
+exp_u_joint <- function(x, k, rho, mu_0, sd_0, sig, rule)
 {
   n1 <- x[1]; d1 <- x[2]; n2 <- x[3]; d2 <- x[4]
   u <- ghQuad(f=exp_u_mu, rule=rule, n1=n1, d1=d1, n2=n2, d2=d2,
          k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig)/sqrt(pi)
+  # return expected utility and a penalty to avoid having a larger sample in the
+  # pilot than in the confirmatory trial
   return(-u+100*(n2<n1))
 }
 
 # For example,
-exp_u(c(5, 0.01, 30, 0.12), k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule)
+exp_u_joint(c(5, 0.01, 30, 0.12), k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule)
 
 # Compare with MC estimate
 mean(replicate(100000, exp_u_mu(rnorm(1, mu_0, sd_0), n1=5, d1=0.01, n2=30, d2=0.12, k, rho, mu_0, sd_0, sig)))
@@ -699,14 +418,147 @@ ghQuad(f=exp_u_mu, rule=rule, n1=n1, d1=d1, n2=n2, d2=d2,
 # 40.114 41.209 52.13059 43.214 49.596 218.44   100
 ```
 
-Finally, we can optimise over the design parameters $n_1, d_1, n_2, d_2$. Note that we use a lower limit on $n_1 \geq 6$ here, felecting that fact that we will be running the pilot trial for reasons other than efficacy anyway (i.e. assessing recruitment etc), so the question is what level of test should be use if we maintain the default pilot sample size, and should we increase the pilot sample size (we are in a cluster RCT context here, so using at least 6 clusters per arm).
+## Illustration / evaluation
+
+### A single confirmatory trial
+
+```{r}
+eval_scenario <- function(x)
+{
+  n <- x[1]; d_hat <- x[2]; d_bar <- x[3]; rho <- x[4]; sig <- x[5]; mu_m <- x[6]; mu_sd <- x[7]
+  
+  # For a given n, find the optimal type I error rate
+  opt <- optim(rnorm(1,0,0.1), exp_u, gr=NULL, control=list(fnscale=-1), method="BFGS",
+                              n=n, d_hat=d_hat, d_bar=d_bar, rho=rho, sig=sig, mu_0=mu_m, sd_0=mu_sd)
+  
+  result <- get_opt_alpha2(n, d_hat, d_bar, rho, sig, mu_m, mu_sd)
+  d <- opt$par; u <- opt$value
+  alpha <- (n==0)*0 + (n!=0)*(1-pnorm(d*sqrt(n/(2*sig^2))))
+  
+  # Get conditional power at the original "mcid" of 0.2
+  cp <- power(0.2, alpha, n, sig)
+  
+  # Get unconditional power
+  sig_x <- sqrt(sd_0^2 + 2*sig^2/n)
+  up <- 1 - pnorm((d-mu_0)/sig_x)
+  
+  # Get the posterior probabilities Pr[mu > d_hat | x=d] and Pr[mu > 0 | x=d]
+  post_mean <- (mu_m/(mu_sd^2) + d/(2*(sig^2)/n))/(1/(mu_sd^2)+1/(2*(sig^2)/n))
+  post_var <- 1/(1/(mu_sd^2)+1/(2*(sig^2)/n))
+  # post probs that mu is greater than a) d_hat, and b) 0
+  posts <- 1-pnorm(c(d_hat, 0), post_mean, sqrt(post_var))
+  
+  return(c(d, -u, alpha, cp, up, posts))
+}
+```
+
+A table of scenarios to optimise:
+```{r, eval=F, echo=T}
+df <- data.frame(n=seq(1, 100, 1))
+df$d_hat <- 0.142; df$d_bar <- 0.01; df$rho <- 1
+df$sig <- 0.25; df$mu_m <- 0; df$mu_sd <- 0.244949
+
+df <- cbind(df, t(apply(df, 1, eval_scenario)))
+names(df)[8:14] <- c("d", "u", "alpha", "cp", "up", "post_d", "post_0")
+
+
+ggplot(df, aes(n, -u, colour=alpha)) + geom_line() + 
+  geom_vline(xintercept = df[which.min(df$u), "n"], colour = cols[1], linetype = 2) +
+  theme_minimal() + ylab("Expected utility")
+```
+
+The design which gives the maximum expected utility is a sample size of $n = 28$ and a type I error rate of $\alpha = 0.0104$. This gives a power of 0.752 to detect the original MCID of 0.2, and gives an unconditional probability of rejecting the null of 0.275. The null hypothesis will be rejected if the sample mean is greater than 0.1545, or equivalently, if the posterior probability that $\mu > 0.142$ is greater than 0.5112. Note that the lowest expected utility is given by a sample size of $n = 0$. We can include a set-up cost into the value function (in units of sample size) to correct for this, leading to a minimum sample size for the trial to be better than doing nothing at all.
+
+In the specific example considered here (i.e. for this choice of parameter values in the utility function and prior distribution), the optimal type I and II error rates are not all that far off traditional values. We now find optimal designs for a range of scenarios, keeping the prior fixed but varying the parameters $\bar{d}$ and $\rho$ in the utility function. Recall that $\bar{d}$ is a measure of the cost of sampling, with larger values meaning larger costs; and $\rho$ meaures the attitude to risk, with larger values meaning more risk-averse. We keep $\hat{d}$ constant at 0.142.
+
+
+```{r, eval=F, echo=T}
+eval_design <- function(des, x)
+{
+  if(des[1] < 2 | des[1] > 150 | des[2] < 0 | des[2] > 0.5) return(10000)
+  n <- des[1]; d <- des[2]
+  d_hat <- x[1]; d_bar <- x[2]; rho <- x[3]; sig <- x[4]; mu_m <- x[5]; mu_sd <- x[6]
+  u <- exp_u(d, n, d_hat, d_bar, rho, sig, mu_m, mu_sd)
+  return(-u)
+}
+  
+get_opt_design <- function(x)
+{
+  opt <- optim(c(20, 0.1), eval_design, x=x)
+  
+  n <- opt$par[1]; d <- opt$par[2]
+  sig <- x[4]
+  alpha <- 1-pnorm(d/sqrt(2*(sig^2)/n))
+  cp <- power(0.2, alpha, n, sig)
+  
+  # Check "optimal" design is better than a null design with n=0
+  u_0 <- eval_design(c(0.001,0.01), x=x)
+  if(u_0 < opt$value){
+    Print("RRRR")
+    alpha <- 0; cp <- 0; n<- 0; d <- 0
+  }
+  
+  return(c(n,d,alpha,cp))
+}
+
+df_sen <- expand.grid(d_bar=seq(0.001, 0.05, length.out = 30), rho=seq(-5,5,length.out = 21))
+
+df_sen$d_hat <- 0.142; df_sen$sig <- 0.25; df_sen$mu_m <- 0; df_sen$mu_sd <- 0.244949
+df_sen <- df_sen[,c(3,1,2,4:6)]
+
+df_sen <- cbind(df_sen, t(apply(df_sen, 1, get_opt_design)))
+names(df_sen)[7:10] <- c("n", "d", "a", "cp")
+
+ggplot(df_sen, aes(a, 1-cp, colour=rho))  + 
+  theme_minimal() + 
+  geom_rect(aes(xmin = 0.005, xmax = 0.025, ymin = 0.1, ymax = 0.2), fill=cols[1], alpha=0.2) +
+  geom_point()
+```
+
+Plot an animation:
+```{r, eval=F}
+df2 <- df_sen[,c(2,3,7,9,10)]
+df2$n <- df2$n/100
+df2 <- melt(df2, id.vars = c("rho", "d_bar"))
+names(df2) <- c("rho", "d_bar", "var", "val")
+
+ggplot(df2, aes(d_bar, val, linetype=var)) + geom_line() +
+  theme_minimal() + 
+  transition_states(rho)
+```
+
+We see that there are some parameter values in the ranges considered which lead to typical operating characteristics of $\alpha = 0.025$ and $\beta \in [0.1, 0.2]$. Specifically, the costs of sampling must be very low and / or the attitude to risk must be very risk-averse. 
+
+```{r}
+p1 <- ggplot(df_sen, aes(d_bar, cp, colour=rho, group=rho)) + geom_point() + geom_line() + theme_minimal()
+p2 <- ggplot(df_sen, aes(rho, cp, colour=d_bar, group=d_bar)) + geom_point() + geom_line() + theme_minimal()
+p3 <- ggplot(df_sen, aes(d_bar, a, colour=rho, group=rho)) + geom_point() + geom_line() + theme_minimal()
+p4 <- ggplot(df_sen, aes(rho, a, colour=d_bar, group=d_bar)) + geom_point() + geom_line() + theme_minimal()
+p5 <- ggplot(df_sen, aes(d_bar, n, colour=rho, group=rho)) + geom_point() + geom_line() + theme_minimal()
+p6 <- ggplot(df_sen, aes(rho, n, colour=d_bar, group=d_bar)) + geom_point() + geom_line() + theme_minimal()
+p7 <- ggplot(df_sen, aes(d_bar, d, colour=rho, group=rho)) + geom_point() + geom_line() + theme_minimal()
+p8 <- ggplot(df_sen, aes(rho, d, colour=d_bar, group=d_bar)) + geom_point() + geom_line() + theme_minimal()
+
+grid.arrange(p1,p2,p3,p4,p5,p6,p7,p8, ncol=2) + theme_minimal()
+```
+
+
+What can we say from these?
+* sample size is almost exclusively detemined by $\bar{d}$, not by the attitude to risk;
+* Both parameters influence the optimal cuut-off point, and thus the type I and II error rates;
+* As we become more risk averse, the optimal design reduces the type I error rate and increases the type II;
+* As the cost of sampling increases, optimal type II error reduces and type I increases.
+
+### A pilot and confirmatory trial programme
+
+We can optimise over the design parameters $n_1, d_1, n_2, d_2$ (which are equivalent to the OCs $\alpha_1, \beta_1, \alpha_2, \beta_2$. In addition to optimising without any contraints, we also consider the case where $n_1$ must be greater than equal to 6. This reflects the scenario where the pilot trial will be going ahead in any case to assess feasibility questions, and will use a standard pilot sample size of 6 (clusters, leading to 30 pareticipants) in each arm.
 
 ```{r, eval=F}
 # Get optimal programmes for a range of risk aversions
 k <- get_ks(0.01, 0.142)
 
-df <- expand.grid(rho = rev(c(seq(-5,-0.001,0.2), 0.001, seq(0.001,5,0.2))),
-                 d_bar = seq(0.002, 0.02, 0.002))
+df <- expand.grid(rho = seq(5, -5, length.out = 20),
+                 d_bar = seq(0.002, 0.02, length.out = 20))
 
 #df <- data.frame(rho = rev(c(seq(-5,-0.001,0.5), 0.001, seq(0.001,5,0.5))))
 
@@ -732,11 +584,16 @@ df <- cbind(df, t(rs))
 
 names(df) <- c("rho", "d_bar", "n1", "d1", "n2", "d2", "a1", "b1", "a2", "b2")
 
+# With no lower bound on pilot n
 #saveRDS(df, "./data/opt_joint.Rda")
+
+# With a lower bound of 6 on pilot n
+#saveRDS(df, "./data/opt_joint_lb6.Rda")
 ```
 
 ```{r}
 df <- readRDS("./data/opt_joint.Rda")
+#df <- readRDS("./data/opt_joint_lb6.Rda")
 
 df2 <- df#[df$d_bar == 0.02,]
 df2$n1 <- df2$n1/100; df2$n2 <- df2$n2/100; 
@@ -754,34 +611,15 @@ ggplot(df2[df2$var != "d",], aes(rho, val, colour=trial, linetype=var)) + geom_l
   scale_colour_manual(values=cols) +
   scale_y_continuous(breaks=seq(0,1,0.1)) + 
   transition_states(d_bar)
-
-ggplot(df2[df2$var != "d",], aes(d_bar, val, colour=trial, linetype=var)) + geom_line() +
-  theme_minimal() +
-  scale_colour_manual(values=cols) +
-  scale_y_continuous(breaks=seq(0,1,0.1)) + 
-  transition_states(rho)
 ```
 
 Note that we may be able to obtain derivatives of the expected utility with respect to the four design variables, which could lead to a faster or more reliable optimisation.
 
-We can further extend the method to integrate over more complex priors, e.g. over the mean effect and the standard deviation.
+In this case, there is not much distinction in the results of the constrained and unconstrained case, so we focus on the latter here. The above plot shows how error rates and sample size of each trial vary with $\rho$, the attitude to risk (where higher $\rho$ means more risk-averse). We see a clear trend that as we become more risk-averse, the type I error rate in both pilot and conformatory trials decreases. Power in the pilot trial deceases with risk-aversion, while it increases in the main trial. The sample size of both trials increases. The above plot animates with varying $\bar{d}$, the cost of sampling (higher value meaning higher cost). As the cost increases, we see lower sample sizes in each trial, lower power, and increased type I error rate. 
 
+Over the ranges of parameters considered here, it may be noted that the type I error rate in the pilot trial is always much higher than 0.025 and much lower than 1, being instead in the range (0.219, 0.595). For the main trial, the largest type I error rate is 0.062, but can be as low as 0.000002. Power, on the other hand, are often not far from the conventional choices of 0.8 and 0.9. In the pilot trial they  ranged from 0.858 to 0.980, while in the main trail the range was (0.791, 0.946).
 
-We haven't included any set-up costs in the above. A multi-criteria optimisation algorithm let's us obtain a range of different options balancing the total maximum sample size and the expected utility. In our running example we get an optimum design with a phase II of $n_1 = `r df[1,"n1"]`, \alpha_1 = `r df[1,"alpha1"]`, 1-\beta_1 = `r df[1,"cp1"]`$ and a phase III of $n_2 = `r df[1,"n2"]`, \alpha_2 = `r df[1,"alpha2"]`, 1-\beta_2 = `r df[1,"cp2"]`$. Contrast the phase III portion with the optimal design obtained previously - $n = 28, \alpha = 0.0098, 1-\beta=0.745$. How can we explain the differences? We are apparently happier to have a larger sample, and for the benefits from that to go towards decreases in both type I and II error rates. We might expect to be happy with a larger phase II sample because there is a chance of not running the phase III trial at all - so the expected sample size is lower. 
-
-Want to calcuate the expected total sample size of a programme, averaging over the unknown $\mu$.
-
-```{r, eval=F}
-exp_ss_integrand <- function(mu, sig, n1, alpha1, n2, mu_m, mu_sd)
-{
-  pow1 <- 1-pnorm(qnorm(1-alpha1)-mu/sqrt(2*(sig^2)/n1))
-  return((n1 + pow1*n2)*prior_mu(mu, mu_m, mu_sd))
-}
-
-integrate(exp_ss_integrand, -3, 3, sig=0.25, n1=df[1,"n1"], alpha1=df[1,"alpha1"], n2=df[1,"n2"], mu_m=0, mu_sd=0.244949)
-```
-
-So, the expected total sample size is lower when we do a phase II/III programme, although the maximal sample size is higher. The overall type I error is $`r df[1,"alpha1"]` \times `r df[1,"alpha2"]` = `r df[1,"alpha1"]*df[1,"alpha2"]`$, (compare with 0.0098), and the overall type II error is $`r df[1,"cp1"]` \times `r df[1,"cp2"]` = `r df[1,"cp1"]*df[1,"cp2"]`$ (compare with 0.745). We might expect that if we were more risk averse (i.e if $\rho$ were greater than 1), we might find that a single stage design is optimal as it gives a known sample size, not a gamble. 
+### Comparison
 
 We can contrast our results with Stallards 2012 paper. He assumes that the phase III trial operating characteristics will be fixed, and chooses those of the phase II trial to minimise the expected total sample size per phase III success. If we also fix the phase III trial OCs, how do the methods compare in terms of optimal phase II design?
 
@@ -839,54 +677,24 @@ So, using Stallard's metric, there is no scope to incorporate judegemnts about t
 
 Key argument is that the Stallard metric is too simple. We can plot the possible options in terms of expected sample size and probability of success, and we would expect that the specific design we choose from this admissable set will depend on aspects of the scenario that are not considered in his model. So, the suggestion that we should always choose that from this set that minimises expected sample size over probability of suceess is not sufficiently flexible. Another point is that his metric / model does not take many parameters as arguments. We need the prior distribution for the treatment effect, and the known outcome variance, but that's all - the optimal design does not depend on the MCID, or on sampling costs, or on an attitude to risk. All of which we might informally incorporate into our decision when presented with the expected sample size / probability of success curve.
 
-### Non-inferiority trials
+## Discussion
 
-What would change if we were interested in showing non-inferiority? We can work in the exact same framework, but now the cost of changing to the new treatment, $\hat{d}$, will be negeative. In fact, this may appear more natural than for superiority trials, because when setting the threshold for non-inferiority we are more explicitly contrastig the differnece in treatment effect with some known economic benefit.
+### Possible extensions
 
-### Multi-arm and/or multi stage designs
+* Non-inferiority trials
+* Multi-arm and/or multi-stage trials
 
-Multi-stage, r group-sequential, designs are more complicated than the phase II/III programme above becuase the data is shared across stages. But the ultimate decisions and their consequences will be the same, so the utility model doesn't have to change. The difference is in the probability model - given $\mu$, what is the probability of each terminal decision? Needs to account for correlation of the test statistics used at each stage - but these are all standard results by now so should be easy to implement.
+### WP3.2
 
-For Multi-arm designs, the utility will be the same for $\delta$ and for $n$, but we now may have differnt costs associated with implementing the different treatments, i.e. we could have a $\hat{d}$ for each. We can think of $C$ now as a discrete variable, not just binary, 
+* Incorporating pilot data into main trial design
 
-### Pilot trials of complex interventions
+If the pilot trial has collected data on feasibility aspects such as recruitment, follow-up and adherence rates, we can use the posterior distributions in the design of the main trial. For simple cases where an analytic power function is available, we can continue laregly as above but doing a more general MC integration when calculating expected utility (as opposed to the exact or GH methods used above) using the set of posterior samples generated in the pilot.
 
-We might think about extending the basic approach here to pilot trials is two main ways. Firstly, we can keep our preferences defined on just the efficacy, sampling and impementation costs, but extend the probability model to incorporate the processes that we are studying in pilots - recruitment, data collection, and adherance. If we can argue that these don't come into our preferences, they will effectively just feed into the power formula.
+When an analytic power function is not available, the expectation can be estimated by sampling trial data and analysis conditional on each posterior sample. This will then add a very significant computational burden, taking us to an expensive optimisation problem which we can solve using EGO.
 
-What challenges are there in implementing this approach? Not many, providing we have an anlytic power function that takes these parameters as additional arguments. Then we can do the numerical integrations needed for expected utility by using the set of posterior samples generated from our Bayesian analysis of the pilot. 
+From a pilot design perspective, we can look at value of information if we can simulate pilot data and for each data set quoickly obtain the subsequent main trial design and its expected utility.
 
-But these might correspond to simple models of both the trial and the analysis. For example, if we want to model adherance, we might want to analyse the data using a causal model, and then we would normally have to fall back on simulation for power calculations. Can we get round this by just simulating a single trial for each parameter sample? So we would be taking a sample from the joint distribution of unknown parameters and trial outcome. IS this what we are interested in when calculating expected utility? And if it is, why haven't we done something along these lines above? Is it just a precision issue?
-
-```{r, eval=F}
-sim <- function(sig, n1, alpha1, n2, mu_m, mu_sd)
-{
-  mu <- rnorm(1, mu_m, mu_sd)
-  pow1 <- 1-pnorm(qnorm(1-alpha1)-mu/sqrt(2*(sig^2)/n1))
-  go <- runif(1) < pow1
-  return((n1 + go*n2))
-}
-
-reps <- replicate(1000000, sim(sig=0.25, n1=9.9, alpha1=0.36, n2=36.9, mu_m=0, mu_sd=0.244949))
-mean(reps)
-
-```
-
-Appears to hold in this case at least. What's happeing here? We are ultimitely interested in the expectation over the unknown C. When we use power, we are substituting the expected value of C conditional on mu. This is just the law of total expectation, which says that $E[X] = E[E(X | Y)]$. In our problem, this is
-
-$$
-\begin{aligned}
-E[u] & = E[ E(u | \mu) ] \\
-& = \int E(u | \mu) p(\mu) d\mu \\
-& = \int \bigg[ u(C_+, \mu)p(C_+ | \mu) + u(C_-, \mu)p(C_-, \mu) \bigg]p(\mu) d\mu
-\end{aligned}
-$$
-This is just another way to get at our previous expression for expected utility. The point here is that an alternative is
-$$
-E[u] \approx \frac{1}{N}\sum_{i=1}^{N} u(C^{(i)}, \mu^{(i)}),
-$$
-where $C^{(i)}, \mu^{(i)}) \sim p(C, \mu)$, the joint distribution. And we can get these samples since $p(C, \mu) = p(C | \mu)p(\mu)$, so we can draw $\mu^{(i)} \sim p(\mu)$ and then draw $C^{(i)} \sim p(C | \mu)$. Then this fits in nicely with the WP4 work, as we are back to doing expensive simulation based evaluations of possible trial designs and finding the optimum. In fact, the problem is simpler here than under the purely frequentist view because we have a single metric, the utility, as our objective function - no constraints, no multi-criteria. And, the precision of the MC estimate might be better here, where we have continusous rather than binary data. Still an expensive operation though, particularly when the anlysis is complex (e.g. causal modelling); and still a complex optimisation problem in that we will have several design parameters to control.
-
-### Unknwon vairnace 
+* Testing in the pilot 
 
 In the above we have focussed on the very simple case with a normal prior on the treatment effect and a known standard deviation. We want to relax this to allow for unknown SDs, particularly in the context of cRCTs (where we still assume an unadjusted t-test as the main decision making tool, but now at the cluster level; so we have the non-central t-distribution which allows for heteroskedasticity and apprioximately allows for random cluster size). What are the implications?
 
@@ -1040,64 +848,74 @@ ggplot(to_plot, aes(n, u)) + geom_ribbon(aes(ymin = lo, ymax = up), fill="grey")
 
 ```
 
-### Learning in the pilot
+## References
 
-So far we have assumed a freq, t-test analysis of the pilot. This means we are not updating any of our prior distributions before designing the main trial. We want to extend to allow for a Baysian analysis of the pilot, 
-allowing both the pilot and external info to feed into the optimal design of the main trial.
+## Supplementary material
 
-Learning about both effectiveness, but all nusiance parameters including feasibility ones.
 
-From a post-trial perspective, the posteriors become our main trial priors and we can proceed as before. We just need to allow for uncertainty in the feasibility parameters and incorporate these into the model. We do the latter as in WP1, by feeding them into the power function, but keeping them out of the utility. The prior is now of several dimensions and empirical, i.e. a set of samples generated from the MCMC pilot analysis, so we are defintiely doing MC integration to calculate the expected utility of any main trial design (although we have the same set of samples for each evaluation).
+To assist with optimisation, we can find the derivatives. First, re-write the expected utility as a function of the critical value $d$:
+$$
+[1-f(d)]\left[1-x\left(\frac{1-g(d)}{1-h(d)}\right)\right] + f(d)(1-y) = 1 - f(d) - x\left(\frac{1-g(d)}{1-h(d)}\right) + f(d)x\left(\frac{1-g(d)}{1-h(d)}\right) + f(d)(1-y).
+$$
+Its derivative is:
+$$
+-f'(d) - x\left(\frac{-g'(d)}{1-h(d)} + \frac{(1-g(d))h'(d)}{(1-h(d))^2}\right) + f'(d) x\left(\frac{1-g(d)}{1-h(d)}\right) + f(d)x\left(\frac{-g'(d)}{1-h(d)} + \frac{(1-g(d))h'(d)}{(1-h(d))^2}\right) + f'(d)(1-y),
+$$
+where
+$$
+\begin{aligned}
+f'(d) &= \phi\left(\frac{d-\mu_0}{\sqrt{\sigma_0^2 + \frac{2\sigma^2}{n}}}\right) \frac{1}{\sqrt{\sigma_0^2 + \frac{2\sigma^2}{n}}} \\
+g'(d) &= \phi\left(\frac{d-\mu_0}{\sigma_x} - \sigma_x r\right)\frac{1}{\sigma_x} \\
+h'(d) &= \phi\left(\frac{d-\mu_0}{\sigma_x}\right)\frac{1}{\sigma_x}
+\end{aligned}
+$$
+Implementing in R and checking against the numerical gradient:
+```{r}
+require(numDeriv)
 
-If allowing for random recruitment, we now have uncertainty over the number recruited in the trial to be averaged over. We might need to specify costs of samplng (at each level in a cRCT) and costs of running the trial seperately. SO inside the integration over the parameters, we have the conditional expectation over the trial outcome which now is bivarite, the result and the sample size. This will be a discreet sum over all the possible realisations weighted by their probability. So, can still use the analytic power if available, we take each sample size and then get the prob of a result conditional on n, which is the power func. 
+f <- function(d){pnorm((d-mu_0)/sqrt(sd_0^2 + 2*sig^2/n))}
+g <- function(d){pnorm((d-mu_0)/sig_x - sig_x*r)}
+h <- function(d){pnorm((d-mu_0)/sig_x)}
+f_d <- function(d){dnorm((d-mu_0)/sqrt(sd_0^2 + 2*sig^2/n))/sqrt(sd_0^2 + 2*sig^2/n)}
+g_d <- function(d){dnorm((d-mu_0)/sig_x - sig_x*r)/sig_x}
+h_d <- function(d){dnorm((d-mu_0)/sig_x)/sig_x}
 
-More generally, we might not have an analytic power function (e.g. for complex multi-level problems as in WP4). In these cases the MC integration for expected utility can sample the trial result (and sample size etc) conditional on each posteriror parameter sample through simulation. This will add to the computational burden (e.g. will need to be in R, not vecotrized in C++, might require model fitting), so if we weren't doing so already the optimisation of the main trial will have to be done using EGO. But this will be more straightforward thatn in WP4, since here we have no constraints and only one, continuous, objecive. So, we should be able to use off-the-shelf methods from DiceKriging. 
+d <- 0.14
+sd_1 <- sqrt(1/(1/sd_0^2 + n/(2*sig^2)))
+t <- -rho*k_d
+sig_x <- sqrt(sd_0^2 + 2*sig^2/n)
+r <- (t * sd_1^2 *n)/(2*sig^2)
+x <- exp(-rho*k_n*n) *
+                                 exp(sd_1^2 *t*t/2) *
+                                 exp(t*sd_1^2 *mu_0/sd_0^2) *
+                                 exp(mu_0*r + (sig_x^2*r*r/2))
 
-Moving back to the pilot design stage, we are looking at an EVSI type calculation to determine its optimal design, but far more complex than usual given the optimal post pilot action is the result of the complex optimisation as above. So, two arguments we can make to avoid this: one, the pilot sample is small so we have relatively little to gain from optimising it (expect perhaps the chance to stop at the outset); two, if we are doing a Bayesian analysis of the pilot then we do not need to pre-sepcify the sample size. We can analyse the avialble data (of which we will have differing amounts for the different endpoints, e.g. recruitment rate and efficacy) at any time and then decide if we need an extension. But how to make that decision without looking at EVSI? 
+d_deriv <- function(d, x, k_n, k_c)
+{
+  -f_d(d) - x*(-g_d(d)/(1-h(d)) + (1-g(d))*h_d(d)/(1-h(d))^2) + f_d(d)*x*((1-g(d))/(1-h(d))) + f(d)*x*(-g_d(d)/(1-h(d)) + (1-g(d))*h_d(d)/(1-h(d))^2) + f_d(d)*(1 - exp(-rho*(k_n*n + k_c)))
+}
 
-# Modelling the wider development process
-
-A model of development. Suppose there is a stream of interventions made available over a set period of time. The trend in effectivess increase with time. There is a lot of variability around this trend. Each interventions is assessed in a trial with the same type I and II error rates.
-
-```{r, eval=F}
-mus <- seq(0,1,0.001)
-mus <- rnorm(length(mus), mus, 0.2)
-
-alpha <- 0.025
-n <- power.t.test(delta=0.3, alternative = "o", sig.level = alpha, power=0.8)$n
-
-  best <- 0
-  y <- NULL
-  d <- NULL
-  ids <- NULL
-  for(i in 1:length(mus)){
-    mu <- mus[i]
-    d <- c(d, mu - best)
-    pow <- power.t.test(n=n, delta=mu-best, alternative="o", sig.level = alpha)$power
-    go <- runif(1) < pow
-    if(go) ids <- c(ids, i)
-    best <- best*(1-go) + go*mu
-    y <- c(y, best)
-  }
-
-  mean(y[100:length(y)])
-  n
-  
-y2 <- y[2:length(mus)] - y[1:(length(mus)-1)]
-mean(y2!=0); mean(y2[y2!=0])
-
-#plot((cumsum(y2)/1:(length(mus)-1))[1000:(length(mus)-1)])
-
-df <- data.frame(i=1:length(mus), mu=mus, y=y, d=d)
-
-ggplot(df, aes(i, mus)) + geom_point(colour="grey") +
-  geom_step(data=df, aes(i,y), colour=colours[1]) +
-  geom_point(data=df[ids,], aes(i,y), colour=colours[1]) +
-  theme_minimal()
+d_deriv(0.14, x=x, k_n=k_n, k_c=k_c)
+grad(exp_u, 0.14, n=n, d_hat=d_hat, d_bar=d_bar, rho=rho, sig=sig, mu_0=mu_0, sd_0=sd_0)
+```
+Now try optimising:
+```{r}
+optim(rnorm(1,0,0.1), exp_u, gr=NULL, control=list(fnscale=-1), method="BFGS",
+      n=n, d_hat=d_hat, d_bar=d_bar, rho=rho, sig=sig, mu_0=mu_0, sd_0=sd_0)
 ```
 
+```{r, eval=F}
+ptm <- proc.time()
+pars <- replicate(1000, optim(rnorm(1,0,0.1), exp_u, gr=NULL, control=list(fnscale=-1), method="BFGS",
+                              n=n, d_hat=d_hat, d_bar=d_bar, rho=rho, sig=sig, mu_0=mu_0, sd_0=sd_0)$par)
+proc.time() - ptm
 
-# References
+# Compare with previous optimisation
+ptm <- proc.time()
+pars <- replicate(10,get_opt_alpha(n, d_hat, d_bar, rho, sig, mu_m, mu_sd))
+proc.time() - ptm
 
+# Over 2000 times as fast
+```
 
 
