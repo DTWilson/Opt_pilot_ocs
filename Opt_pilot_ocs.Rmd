@@ -1,9 +1,8 @@
 ---
 title: "Optimising tests of efficacy in external pilot trials using Bayesian statistical decision theory"
 author: "D. T. Wilson"
-output:
-  html_document: default
-  pdf_document: default
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -18,6 +17,8 @@ require(gridExtra)
 require(fastGHQuad)
 require(microbenchmark)
 require(reshape2)
+require(gganimate)
+require(xtable)
 cols <- brewer.pal(8, "Dark2")
 ```
 
@@ -282,7 +283,7 @@ exp_u <- function(d, n, d_hat, d_bar, rho, sig, mu_0, sd_0)
 We can check the function against a simulation:
 
 ```{r, eval=T}
-test_u <- function(mu, x, rho, mu_0, k)
+test_u <- function(mu, x, d, rho, mu_0, k)
 {
   k_d <- k[1]; k_n <- k[2]; k_c <- k[3]
   go <- x > d
@@ -295,11 +296,11 @@ test_u <- function(mu, x, rho, mu_0, k)
   }
 }
 
-test_sim <- function(sig, rho, mu_0, sd_0, k)
+test_sim <- function(sig, d, rho, mu_0, sd_0, k)
 {
   mu <- rnorm(1, mu_0, sd_0)
   x <- rnorm(1, mu, sqrt(2*sig^2/n))
-  c(mu, x, test_u(mu, x, rho, mu_0, k))
+  c(mu, x, test_u(mu, x, d, rho, mu_0, k))
 }
 
 d_bar <- 0.01; d_hat <- 0.142; mu_0 <- 0; sd_0 <- 0.244949; sig <- 0.25; rho <- 1; n <- 20
@@ -307,11 +308,11 @@ k <- get_ks(d_bar, d_hat)
 
 # Simulated expected utility
 N <- 1000000
-us <- replicate(N, test_sim(sig, rho, mu_0, sd_0, k)[3])
+us <- replicate(N, test_sim(sig, d=0.3, rho, mu_0, sd_0, k)[3])
 # 98% confidence interval around the MC estimate
 c(mean(us) - qnorm(0.99)*sqrt(var(us)/N), mean(us) + qnorm(0.99)*sqrt(var(us)/N))
 
-exp_u(d, n, d_hat, d_bar, rho, sig, mu_0, sd_0)
+exp_u(d=0.3, n, d_hat, d_bar, rho, sig, mu_0, sd_0)
 ```
 
 ### MEU for a pilot and confirmatory trial programme
@@ -319,7 +320,7 @@ exp_u(d, n, d_hat, d_bar, rho, sig, mu_0, sd_0)
 Denote pilot and main sample size by $n_1, n_2$ and repsective sample means $x_1, x_2$. The ciritcal values against which these are compared are $d_1, d_2$. The utility is now
 
 $$
-u(\mu, x_1, x_2) = 1 - e^{-\rho(k_d\mu + k_n (n_1+n_2))I[x_1>d_1, x_2>d_2] -\rho(k_n (n_1+n_2) + k_c)I[x_1 > d_1, x_2 < d_2] - \rho(k_n n_1 + k_c)I[x_1 < d_1]}.
+u(\mu, x_1, x_2) = 1 - e^{-\rho(k_d\mu + k_n (n_d1+n_2))I[x_1>d_1, x_2>d_2] -\rho(k_n (n_1+n_2) + k_c)I[x_1 > d_1, x_2 < d_2] - \rho(k_n n_1 + k_c)I[x_1 < d_1]}.
 $$
 
 It has not been possible to obtain a closed-form expression for the expectaed utility over the joint distribution of $\mu, x_1, x_2$. However, the expected utility conditional on $\mu$ is
@@ -418,7 +419,74 @@ ghQuad(f=exp_u_mu, rule=rule, n1=n1, d1=d1, n2=n2, d2=d2,
 # 40.114 41.209 52.13059 43.214 49.596 218.44   100
 ```
 
-## Illustration / evaluation
+## Illustration
+
+To illustrate the method, we look at the problem described in Stallard (2012). There, the MCID and the outcome standard deviation were both equal to 1, implying a standard phase III sample size of 22 per arm to get 0.9 power with a one-sided type I error rate of 0.025. Taking the same approach as before to setting $\hat{d}$, we find that standard phase III would have had around 50\% power at $\hat{d} = 0.605$. We set $\bar{d} = 0.05$, giving us a similar costs of sampling as our previous example (inflating a a factor of five to relfect the interest in an effect of around 1 rather than 0.2).
+
+```{r, eval=F}
+mu_0 <- 0; sd_0 <- 1; sig <- 1
+rho <- 1; d_bar <- 0.05; d_hat <- 0.62
+k <- get_ks(d_bar, d_hat)
+rule <- gaussHermiteData(100)
+rule$x <- rule$x*sqrt(2)*sd_0 + mu_0
+
+ptm <- proc.time()
+opt <- genoud(exp_u_joint, 4, Domains = matrix(c(0,-40,0,0,300,10,300,10),ncol=2), 
+              print.level = 0, boundary.enforcement = 2, 
+              k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule)
+proc.time() - ptm
+
+x <- opt$par
+
+r1 <- c(x, 
+         1 - pnorm(x[2]/sqrt(2*(sig^2)/x[1])),
+         pnorm(x[2], 1, sqrt(2*sig^2/x[1])),
+         1 - pnorm(x[4]/sqrt(2*(sig^2)/x[3])),
+         pnorm(x[4], 1, sqrt(2*sig^2/x[3])))
+r1
+
+opt <- genoud(exp_u_joint, 4, Domains = matrix(c(0,-40,0,0, 300,-39,300,10),ncol=2), 
+              print.level = 0, boundary.enforcement = 2, 
+              k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule)
+
+x <- opt$par
+
+r2 <- c(x, 
+         1 - pnorm(x[2]/sqrt(2*(sig^2)/x[1])),
+         pnorm(x[2], 1, sqrt(2*sig^2/x[1])),
+         1 - pnorm(x[4]/sqrt(2*(sig^2)/x[3])),
+         pnorm(x[4], 1, sqrt(2*sig^2/x[3])))
+
+opt <- genoud(exp_u_joint, 4, Domains = matrix(c(0,-40,20.99,0.6, 300,10,21,0.604858),ncol=2), 
+              print.level = 0, boundary.enforcement = 2, 
+              k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule)
+
+x <- opt$par
+
+r3 <- c(x, 
+         1 - pnorm(x[2]/sqrt(2*(sig^2)/x[1])),
+         pnorm(x[2], 1, sqrt(2*sig^2/x[1])),
+         1 - pnorm(x[4]/sqrt(2*(sig^2)/x[3])),
+         pnorm(x[4], 1, sqrt(2*sig^2/x[3])))
+ 
+tab <- as.data.frame(rbind(r1, r2, r3))
+
+tab <- data.frame(pr = c("Unrestricted", "No pilot test", "Conventional main trial OCs"),
+                  n_1=round(tab[,1]), n_2=round(tab[,3]),
+                  a_1 = round(tab[,5], 2), p_1 = round(tab[,6], 3),
+                  a_2 = round(tab[,7], 3), p_2 = round(tab[,8], 3)
+                   )
+colnames(tab) <- c("Problem", "$n_1$", "$n_2$", "$\\alpha_1$", "$1 - \\beta_1$", "$\\alpha_2$", "$1 - \\beta_2$")
+tab[2,2] <- 0
+tab
+
+print(xtable(tab, digits = c(1,0,0,0,2,3,3,3)), booktabs = T, include.rownames = F, 
+       sanitize.text.function = function(x) {x}, floating = F,
+       file = "./paper/tables/ill.txt")
+```
+
+
+## Evaluation
 
 ### A single confirmatory trial
 
@@ -431,12 +499,11 @@ eval_scenario <- function(x)
   opt <- optim(rnorm(1,0,0.1), exp_u, gr=NULL, control=list(fnscale=-1), method="BFGS",
                               n=n, d_hat=d_hat, d_bar=d_bar, rho=rho, sig=sig, mu_0=mu_m, sd_0=mu_sd)
   
-  result <- get_opt_alpha2(n, d_hat, d_bar, rho, sig, mu_m, mu_sd)
   d <- opt$par; u <- opt$value
   alpha <- (n==0)*0 + (n!=0)*(1-pnorm(d*sqrt(n/(2*sig^2))))
   
   # Get conditional power at the original "mcid" of 0.2
-  cp <- power(0.2, alpha, n, sig)
+  cp <- pnorm(0.2/sqrt(2*sig^2/n) - qnorm(1-alpha)) 
   
   # Get unconditional power
   sig_x <- sqrt(sd_0^2 + 2*sig^2/n)
@@ -453,7 +520,7 @@ eval_scenario <- function(x)
 ```
 
 A table of scenarios to optimise:
-```{r, eval=F, echo=T}
+```{r}
 df <- data.frame(n=seq(1, 100, 1))
 df$d_hat <- 0.142; df$d_bar <- 0.01; df$rho <- 1
 df$sig <- 0.25; df$mu_m <- 0; df$mu_sd <- 0.244949
@@ -472,12 +539,12 @@ The design which gives the maximum expected utility is a sample size of $n = 28$
 In the specific example considered here (i.e. for this choice of parameter values in the utility function and prior distribution), the optimal type I and II error rates are not all that far off traditional values. We now find optimal designs for a range of scenarios, keeping the prior fixed but varying the parameters $\bar{d}$ and $\rho$ in the utility function. Recall that $\bar{d}$ is a measure of the cost of sampling, with larger values meaning larger costs; and $\rho$ meaures the attitude to risk, with larger values meaning more risk-averse. We keep $\hat{d}$ constant at 0.142.
 
 
-```{r, eval=F, echo=T}
+```{r}
 eval_design <- function(des, x)
 {
   if(des[1] < 2 | des[1] > 150 | des[2] < 0 | des[2] > 0.5) return(10000)
   n <- des[1]; d <- des[2]
-  d_hat <- x[1]; d_bar <- x[2]; rho <- x[3]; sig <- x[4]; mu_m <- x[5]; mu_sd <- x[6]
+  d_hat <- x[1];  rho <- x[2]; d_bar <- x[3]; sig <- x[4]; mu_m <- x[5]; mu_sd <- x[6]
   u <- exp_u(d, n, d_hat, d_bar, rho, sig, mu_m, mu_sd)
   return(-u)
 }
@@ -489,7 +556,7 @@ get_opt_design <- function(x)
   n <- opt$par[1]; d <- opt$par[2]
   sig <- x[4]
   alpha <- 1-pnorm(d/sqrt(2*(sig^2)/n))
-  cp <- power(0.2, alpha, n, sig)
+  cp <- pnorm(0.2/sqrt(2*sig^2/n) - qnorm(1-alpha)) 
   
   # Check "optimal" design is better than a null design with n=0
   u_0 <- eval_design(c(0.001,0.01), x=x)
@@ -501,18 +568,25 @@ get_opt_design <- function(x)
   return(c(n,d,alpha,cp))
 }
 
-df_sen <- expand.grid(d_bar=seq(0.001, 0.05, length.out = 30), rho=seq(-5,5,length.out = 21))
+df_sen <- expand.grid(rho = seq(5, -5, length.out = 20),
+                 d_bar = seq(0.002, 0.02, length.out = 20))
 
 df_sen$d_hat <- 0.142; df_sen$sig <- 0.25; df_sen$mu_m <- 0; df_sen$mu_sd <- 0.244949
 df_sen <- df_sen[,c(3,1,2,4:6)]
 
+ptm <- proc.time()
 df_sen <- cbind(df_sen, t(apply(df_sen, 1, get_opt_design)))
+proc.time() - ptm
+
 names(df_sen)[7:10] <- c("n", "d", "a", "cp")
 
 ggplot(df_sen, aes(a, 1-cp, colour=rho))  + 
   theme_minimal() + 
   geom_rect(aes(xmin = 0.005, xmax = 0.025, ymin = 0.1, ymax = 0.2), fill=cols[1], alpha=0.2) +
   geom_point()
+
+
+#saveRDS(df_sen, "./data/opt_single.Rda")
 ```
 
 Plot an animation:
@@ -522,9 +596,11 @@ df2$n <- df2$n/100
 df2 <- melt(df2, id.vars = c("rho", "d_bar"))
 names(df2) <- c("rho", "d_bar", "var", "val")
 
-ggplot(df2, aes(d_bar, val, linetype=var)) + geom_line() +
+p <- ggplot(df2, aes(d_bar, val, linetype=var)) + geom_line() +
   theme_minimal() + 
   transition_states(rho)
+
+animate(p, nframes = 20, fps = 5)
 ```
 
 We see that there are some parameter values in the ranges considered which lead to typical operating characteristics of $\alpha = 0.025$ and $\beta \in [0.1, 0.2]$. Specifically, the costs of sampling must be very low and / or the attitude to risk must be very risk-averse. 
@@ -606,18 +682,42 @@ df2$t1 <- substr(df2$t1,1,1)
 df2$variable <- substr(df2$variable,2,2)
 names(df2) <- c("rho", "d_bar", "var", "trial", "val")
 
-ggplot(df2[df2$var != "d",], aes(rho, val, colour=trial, linetype=var)) + geom_line() +
+p <- ggplot(df2[df2$var != "d",], aes(rho, val, colour=trial, linetype=var)) + geom_line() +
   theme_minimal() +
   scale_colour_manual(values=cols) +
   scale_y_continuous(breaks=seq(0,1,0.1)) + 
   transition_states(d_bar)
+
+animate(p, nframes=20, fps=5)
+
+
+sub <- df2[df2$d_bar %in% unique(df2$d_bar)[c(1, 4, 8, 12, 16, 18)],]
+sub$d_bar <- round(sub$d_bar, 3)
+
+ggplot(sub[sub$var != "d",], aes(rho, val, colour=trial, linetype=var)) + geom_line() +
+  theme_minimal() +
+  scale_colour_manual(values=cols) +
+  #scale_y_continuous(breaks=seq(0,1,0.1)) + 
+  facet_wrap(. ~ d_bar, labeller = labeller(d_bar = d_bar_labs)) +
+  xlab(expression(rho)) + ylab("Value") +
+  labs(colour = "Trial", linetype = "Variable")
+  
+
+
 ```
+
+
+
+
+
 
 Note that we may be able to obtain derivatives of the expected utility with respect to the four design variables, which could lead to a faster or more reliable optimisation.
 
-In this case, there is not much distinction in the results of the constrained and unconstrained case, so we focus on the latter here. The above plot shows how error rates and sample size of each trial vary with $\rho$, the attitude to risk (where higher $\rho$ means more risk-averse). We see a clear trend that as we become more risk-averse, the type I error rate in both pilot and conformatory trials decreases. Power in the pilot trial deceases with risk-aversion, while it increases in the main trial. The sample size of both trials increases. The above plot animates with varying $\bar{d}$, the cost of sampling (higher value meaning higher cost). As the cost increases, we see lower sample sizes in each trial, lower power, and increased type I error rate. 
+In this case, there is not much distinction in the results of the constrained and unconstrained case, so we focus on the latter here. The above plots shows how error rates and sample size of each trial vary with $\rho$, the attitude to risk (where higher $\rho$ means more risk-averse). We see a clear trend that as we become more risk-averse, the type I error rate in both pilot and conformatory trials decreases. Power in the pilot trial deceases with risk-aversion, while it increases in the main trial. The sample size of both trials increases. The above plot animates with varying $\bar{d}$, the cost of sampling (higher value meaning higher cost). As the cost increases, we see lower sample sizes in each trial, lower power, and increased type I error rate. 
 
 Over the ranges of parameters considered here, it may be noted that the type I error rate in the pilot trial is always much higher than 0.025 and much lower than 1, being instead in the range (0.219, 0.595). For the main trial, the largest type I error rate is 0.062, but can be as low as 0.000002. Power, on the other hand, are often not far from the conventional choices of 0.8 and 0.9. In the pilot trial they  ranged from 0.858 to 0.980, while in the main trail the range was (0.791, 0.946).
+
+Regarding the conventional strategy of not testing in the pilot, we don't find any scenarios here where this is optimal. The results do suggest, however, that as we become more risk-seeking we have a higher optimal type I error in the pilot. And indeed  we see that as we go beyond the range considered above, we do find optimal pilot designs where $\alpha_1$ approaches 1 (for example, when $\rho = -10$). Given that we might in general expect decision-makers to be risk-averese or at best risk-neutral, these results both suggest that the current strategy is far from optimal and give some insight into why this is (i.e. not testing is a risky and inefficient strategy, so only attractive when we are seeking risk).
 
 ### Comparison
 
@@ -682,7 +782,44 @@ Key argument is that the Stallard metric is too simple. We can plot the possible
 ### Possible extensions
 
 * Non-inferiority trials
+
+Automatic?
+
+* Internal pilots
+
+Recall that when conditioning on mu we had to calculate the probabilities of: both tests passing; pilot test passing but main test failing; and pilot test failing. These are not much harder to compute in the internal pilot setting - the stats at both stages will be distributed as a bivariate normal so can get the probabilities directly from e.g. mvtnorm (whereas before we could calculate the probabilities for each stage using pnorm and then multiply since they were independant, conditional on mu). In terms of reporting the results, we might be more interested in looking at the optimal value of overall type I and II error rates, and less interested in the pilot OCs alone.
+
 * Multi-arm and/or multi-stage trials
+
+See Lee2019, who consider using utility to decide at an iterim analysis if another arm should be added to the trial. Multi-arm here could also consider multiple endpoints, aiming to select one for the primary analysis in the main trial. This would be a significant extension since the different endpoints would have to go into the utility, and the correlation between endpoints within participants would have to be modelled.
+
+* Binary endpoint
+
+We will have a conjugate analysis given a beta prior, in that the posterior distribution for the rate parameter in both arms will remain beta. But our utility will depend on the absolute or relative difference between these (relative being the most appropriate at the popullation level?). Unless this has a nice closed form, are we then looking at a numerical integration over two betas? Is this easy to do?
+
+```{r, eval=F}
+ff <- function(p)
+{
+  (p[1]-p[2])*dbeta(p[1], 2, 4)*dbeta(p[2], 8, 4)
+}
+
+# Optimisation involves about 12,000 evaluations at the moment
+# Compare the time this would take
+
+ptm <- proc.time()
+x <- replicate(12000, hcubature(ff, c(0,0), c(1,1)))
+#x <- replicate(12000, exp_u_joint(c(10, 0.5, 20, 0.5), k, rho, mu_0, sd_0, sig, rule))
+proc.time() - ptm
+
+# For Beta integration:
+# user  system elapsed 
+# 564.25    0.89  571.43 
+
+# For normal integration:
+# user  system elapsed 
+#   0.53    0.05    0.56 
+```
+
 
 ### WP3.2
 
@@ -694,7 +831,7 @@ When an analytic power function is not available, the expectation can be estimat
 
 From a pilot design perspective, we can look at value of information if we can simulate pilot data and for each data set quoickly obtain the subsequent main trial design and its expected utility.
 
-* Testing in the pilot 
+* Testing feasibility in the pilot 
 
 In the above we have focussed on the very simple case with a normal prior on the treatment effect and a known standard deviation. We want to relax this to allow for unknown SDs, particularly in the context of cRCTs (where we still assume an unadjusted t-test as the main decision making tool, but now at the cluster level; so we have the non-central t-distribution which allows for heteroskedasticity and apprioximately allows for random cluster size). What are the implications?
 
@@ -870,7 +1007,7 @@ h'(d) &= \phi\left(\frac{d-\mu_0}{\sigma_x}\right)\frac{1}{\sigma_x}
 \end{aligned}
 $$
 Implementing in R and checking against the numerical gradient:
-```{r}
+```{r, eval=F}
 require(numDeriv)
 
 f <- function(d){pnorm((d-mu_0)/sqrt(sd_0^2 + 2*sig^2/n))}
@@ -899,7 +1036,7 @@ d_deriv(0.14, x=x, k_n=k_n, k_c=k_c)
 grad(exp_u, 0.14, n=n, d_hat=d_hat, d_bar=d_bar, rho=rho, sig=sig, mu_0=mu_0, sd_0=sd_0)
 ```
 Now try optimising:
-```{r}
+```{r, eval=F}
 optim(rnorm(1,0,0.1), exp_u, gr=NULL, control=list(fnscale=-1), method="BFGS",
       n=n, d_hat=d_hat, d_bar=d_bar, rho=rho, sig=sig, mu_0=mu_0, sd_0=sd_0)
 ```
@@ -917,5 +1054,4 @@ proc.time() - ptm
 
 # Over 2000 times as fast
 ```
-
 

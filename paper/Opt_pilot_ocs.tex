@@ -22,9 +22,9 @@
 \title{Optimising tests of efficacy in external pilot trials using Bayesian statistical decision theory}
 
 \author{Duncan T. Wilson\affilnum{1}}%,
-Rebecca E. A. Walwyn\affilnum{1}, 
-Julia Brown\affilnum{1} and 
-Amanda J. Farrin\affilnum{1}}
+%Rebecca E. A. Walwyn\affilnum{1}, 
+%Julia Brown\affilnum{1} and 
+%Amanda J. Farrin\affilnum{1}}
 
 \affiliation{\affilnum{1}Leeds Institute of Clinical Trials Research, University of Leeds, Leeds, UK} %\\
 %\affilnum{2}Centre for Primary Care \& Public Health, Queen Mary University of London, London, UK}
@@ -33,55 +33,216 @@ Amanda J. Farrin\affilnum{1}}
 \email{d.t.wilson@leeds.ac.uk}
 
 \begin{abstract}
-% (300 word limit for ICTMC)
+% (300 word limit for ICTMC) (250 limit for SiM)
 
-Intro
-External pilots are commonly carried out prior to a confirmatory trial, running the trial at a small scale to assess feasibility and inform design.
-Efficacy is rarely formally assessed in pilots because their small sample size will lead to low power when using a typical type I error rate such as 0.025 one sided.
-By not testing efficacy, the type I error rate is effectively 1, which implies an infinite preference for type I errors over type II errors.
-The optimal type I error rate in a pilot is likely to be between these two extremes of 0.025 and 1, but it is not currently clear how it can be determined.
+Introduction: External pilot trials of complex interventions are often conducted in advance of a definitive trial to assess feasibility and to inform its design. The efficacy of the intervention is rarely assessed using a formal hypothesis test since it would have low power, given the small sample size of a pilot and assuming a conventional type I error rate (e.g. 0.025). By not testing efficacy, an external pilot will effectively have a type I error rate of 1, suggesting an infinite preference for type I errors over type II errors. As such a preference will never occur in practice, we consider methods for finding the optimal balance of between type I and II error rates in external pilots.
 
-Methods
-We consider a Bayesian decision-theoretic approach to choosing the sample size and type I error rate for external pilot trials. We introduce a utility function which accounts for improvements in primary outcome, costs of sampling and of treating patients, and the attitude to risk of the decision-maker, and show how its parameters can be determined for the case at hand. We illustrate through application to an external pilot in mental health comparing an intervention to a control with respect to a normally distributed primary outcome with unknown mean, optimising both the pilot and main trial together; and optimising only the pilot trial, keeping the main trial error rates fixed at conventional levels.
+Methods: We consider the problem of determining the sample size and type I error rate which maximise the expected utility of an external pilot trial testing intervention efficacy. We introduce a utility function which accounts for improvement in primary outcome, the cost of sampling, treatment costs, and the decision-maker’s attitude to risk. We apply the method to the re-design of a pilot trial with a continuous primary outcome with known standard deviation and where uncertainty in the treatment effect is quantified using a normal prior distribution. 
 
-Results
-Across a wide range of utility functions and prior distributions, we find that optimal pilot trials tend to have large type I and low type II errors, and have sample sizes around the conventional levels. The current practice of not testing in the pilot, equivalent to a pilot type I error rate of 1, is shown to be consistently sub-optimal.
+Timing of potential results: A study of the proposed method’s properties under a range of values for the utility function and prior distribution parameters is to be completed by August 2019.
 
-Discussion: Taking a Bayesian view of optimising frequentist operating characteristics of pilot trials suggests that current guidance regarding testing efficacy in pilots should be revisited, with testing potentially resulting in substantial efficiency gains. 
-
+Potential relevance and impact: By viewing external pilot trial design from a Bayesian decision-theoretic viewpoint, we will provide a method for finding the optimal balance of type I and II error rates in external pilots. In particular, we will identify in which (if any) settings the current approach of not assessing efficacy is the optimal course of action. 
 \end{abstract}
 
 \keywords{Clinical trial, pilot trial, external pilot, statistical decision theory, optimal design}
 
 \maketitle
 
-\section{Introduction}\label{sec:intro}
+\section{Introduction}
 
-Pilot trials are common in complex intervention development, and used to help decide if a confirmatory trial should proceed. Pilot methodology has warned against assessing the efficacy of the intervention in the pilot, primarily because such an assessment (if taking the form of a standard hypothesis test) will have low power to detect an effect of interest, and is therefore likely to incorrectly conclude the intervention is not promising and terminate its development.
+Feasibility and pilot studies form a key stage in the development and evaluation of complex interventions \cite{Craig2008}, being conducted prior to a planned clinical trial assessing the effectiveness of the intervention under study and aiming to inform that trials feasibility and optimal design. Pilot trials are a particular type of feasibility study which takes the same form as the planned main trial, but at a smaller scale \cite{Eldridge2016}. Pilots may be internal, in which case the pilot data is analysed together with the main trial data and there is a seamless transition between the two; or external, in which case there is a clear gap between the trials and the data are kept separate.
 
-The conclusion that a test of efficacy in a pilot will have low power rests on some assumptions. In particular, it assumes that the effect size of interest is of a similar magnitude as in the main trial. This may not be the case if the endpoint in the pilot is different to that in the main trial (as is common in phase II trials); or if we can argue that the idealised setting of the pilot should lead to a larger effect than will be seen in a pragmatic setting. We will take these assumptions as true - the endpoint will be shared, and we cannot justify that the pilot setting will lead to higher effects.
+Several authors have sought to clarify the purpose, design and analysis of pilot trials over the past 20 years \cite{Lancaster2004}, with a common point being that hypothesis tests of effectiveness should not be carried out as they will have low power to detect an effect of interest \cite{Wilson2015}. This criticism rests on two assumptions. Firstly, it assumes that the effect size of interest in the pilot trial is the same as, or at least not much larger than, that which is of interest in the main trial. This may not be the case when the endpoint being tested in the pilot is different from that in the main trial (for example, a surrogate endpoint); or when the idealised setting of the pilot implies a larger effect should be expected than when under the more pragmatic setting of the main trial. Secondly, it assumes that the type I error rate of the pilot test will be the same as, or at least very similar to, that used in the main trial (e.g. the conventional choice of 0.025 one-sided). Under these restrictions, the fact that pilot trials are typically smaller than the planned main trial will indeed imply they will have low power when testing efficacy. For example, suppose a standardised effect size of 0.3 is of interest, and the pilot will randomise 35 participants to each arm as recommended in \cite{Teare2014}, then a test in the pilot with one-sided type I error rate of 0.025 will have a power of 0.23.
 
-A further assumption is that the type I error rate, or $\alpha$, used in the pilot test will be set at the usual rates of 0.01 - 0.05. Under this restriction, a typical pilot trial as illustrated in Figure \ref{} will indeed have low power, in this case around 21\% for a one-sided test with $\alpha = 0.05$. Having considered this low power unacceptable, by instead deciding to not test at all we are effectively choosing the extreme point on the OC curve with $\alpha = 1, \beta = 0$. This decision reflects an infinite preference for minimising type II over type I errors in pilot trials. Even if the preference is substantial, any finite level would lead to a different choice. For example, consider the point on the OC curve with $\alpha = 0.9, \beta = 0.007$. A 0.1 decrease in type I error at the cost of a 0.007 increase in type II error would be hard to argue against.
+By rejecting a possible pilot test with error rates $\alpha = 0.025$ and $\beta = 1 - 0.23 = 0.77$ and instead recommending not testing at all, we effectively obtain a procedure with error rates $\alpha = 1, \beta = 0$. This decision reflects an infinite preference for minimising type II errors over type I errors in the pilot, a preference too extreme to be expected in practice. Even if the magnitude of preference is substantial, any finite level would lead to a different choice. For example, an alternative would be $\alpha = 0.9, \beta = 0.006$. In many cases, we might expect a decrease in type I error of 0.1 in exchange for an increase in type II error of 0.006 to be a quite reasonable trade-off and hard to argue against.
 
-If we agree that a type I error rate of 1 is never optimal, how can we find what OCs are optimal? One approach is to view the pilot trial, and subsequent main trial, from the perspective of Bayesian statistical decision theory. If we can define a suitable utility function, and prior distributions on all unknown parameters, we can find the optimal decision (i.e. the best choice or error rates in both trials) by maximising expected utility.
- 
+The question which we will consider in this paper is how to determine the optimal error rates for a test of effectiveness in a pilot trial, to be conducted prior to a main trial to decide if it should be done, and based on a normally distributed primary endpoint which will be used at both stages. The general idea of relaxing type I error has been suggested explicitly \cite{Lee2014} and implicitly \cite{Cocks2013}, although in neither case are methods for choosing an appropriate level described. More generally, there is a lack of formal methods for the choice of error rates - some have argued for minimising their sum, or for balancing them, but the lack of methods is reflected in the ongoing yet much criticised convention of choosing $\alpha = 0.025, \beta = 0.2$ for all trials, regardless of the consequences of each type of error or the probabilities of their occurrence.
+
+One possible strategy for doing so is through Bayesian statistical decision theory. If we can define a suitable utility function, we can make decisions which maximise the expected value of that function with respect to prior distributions on all unknown parameters. This framework, as we will show, can be used flexibly to determine the optimal type I error rates and sample sizes of the pilot trial, main trial, or both simultaneously.
+
+
 \section{Problem}
 
-Although the principles we will use are quite general, for ease of explanation and computational feasibility we will consider the specific case of a normally distributed primary outcome with unknown mean and known standard deviation, which will be used in both the pilot and main trials. Each trial will conduct a t-test of the difference in means between intervention and control groups, and thus can be defined by their type I and II error rates.  
+An external pilot trial followed by a confirmatory trial are to be designed. Both trials will be parallel group studies comparing an intervention to control with respect to the same normally distributed primary outcome with known standard deviation common to each arm. The main trial will only proceed if the result of the pilot test is statistically significant. The design and analysis of each trail will follow the standard N-P hypothesis testing formulation, and as such can be encapsulated by type I and II error rates $\alpha_1, \beta_1$ (for the pilot) and  $\alpha_2, \beta_2$ (for the main trial).
 
-We will consider:
-- Joint optimisation of both trials
-- Optimisation of only the pilot, with standard main trial error rates
+We will consider two optimisation problems. Firstly, we jointly optimise over $\alpha_1, \beta_1, \alpha_2, \beta_2$. In order to provide a comparison with the conventional approach of not testing at all in pilots, we also optimise over only $\alpha_2, \beta_2$ and fix $\alpha_1 = 1, \beta_1 = 0$.
 
-To provide comparisons, we will also consider a pilot $\alpha$ of 1 in each of these cases (i.e. optimising the main and keeping it fixed at typical levels). Note that this will then also lead to results where only the main trial is under consideration.
- 
-\section{Expected utility}
+\section{Maximising expected utility}
+
+\subsection{Attributes and value}
+
+We construct a utility function by first defining a \emph{value} function. A value function $v(y)$ should encode our preferences on some attributes $y$ under conditions of certainty, in the sense that $v(y) > v(v')$ if and only if we prefer $y$ to $y'$. We first need to define the attributes we are interested in and the values they can take. We consider the following:
+
+\begin{itemize}
+\item the sample size, $n$ 
+\item cost incurred by changing the current standard treatment, denoted $C \in \{-,+\}$
+\item change in the average outcome, denoted $\mu$
+\end{itemize}
+
+We use the notation $y \prec y'$ to mean we prefer $y$ to $y'$. We want to define a function $v(n, C, \mu)$ such that
+$$
+(n, C, \mu) \prec (n', C', \mu') \Leftrightarrow v(n, C, \mu) < v(n', C', \mu').
+$$
+To construct the value function we first assume that each pair of attributes is preferentially independent of the remaining attribute - that is, the trade-offs between any two attributes when the remaining attribute is kept fixed do not depend on the level it is fixed at. Then, our preferences can be characterised by a value function of the form 
+$$ 
+v(n, C, \delta) = k_n v_n(n) + k_c v_c(C) + k_d v_d(\mu),
+$$
+where
+\begin{enumerate}
+\item $v_i(worst) = 0, v_i(best) = 1, i = 1,2,3$;
+\item $0 < \lambda_i < 1, i = 1,2,3$;
+\item $\sum_{i=1}^3 \lambda_i = 1$.
+\end{enumerate}
+
+We now need to define the component value functions $v_n, v_c, v_d$ and the corresponding weights $k_n, k_c, k_d$. First consider the functions. We assume that the cost of sampling is constant, and so $v_n$ is linear, and similarly assume linearity in the value of change in outcome, $v_d$. Attribute $C$ only has two levels. We use identity value functions for all attributes, which will keep the notation simple. So,
+$$ 
+v(n, C, \delta) = k_n n + k_c C + k_d \mu.
+$$
+We need to choose the scaling constants which will determine the relative importance of each attribute. Given that $k_n + k_c + k_d = 1$ (because the scale of the value function is arbitrary), we can deduce the parameter values given two sets of equivalence judgements. First, we ask for the change in outcome $\bar{d}$ that would be needed for us to judge that
+$$
+(n = 0, d = 0, C = +) \sim (n = n_*, d = \bar{d}, C = +).
+$$
+That is, what change in outcome would we want to see to justify an increase in sample size from 0 to $n_*$? Secondly, we ask for the change in outcome $\hat{d}$ that would be needed to judge that
+$$
+(n, d = 0, C = -) \sim (n, d = \hat{d}, C = +).
+$$
+That is, what change in outcome would justify the changing of the standard treatment from the control to the new treatment. We then have the following values for the scaling parameters:
+
+\begin{itemize}
+\item $k_d = 1/(1 + \hat{d} + \bar{d}/n_*)$,
+\item $k_n = -\lambda_d \bar{d}/n_*$,
+\item $k_c = \lambda_d \hat{d}$.
+\end{itemize}
+
+In our example we will take $n_* = 100, \bar{d} = 0.01$, meaning that we would be happy to ``pay'' a sample size of $n = 100$ for a guaranteed increase in the mean outcome of 0.01. We take $\hat{d} = 0.142$, meaning that if we knew the new treatment would improve the mean outcome by 0.142 then we would be indifferent as to whether or not it should be recommended over the control as the standard treatment, bearing in mind the costs associated with implementing such a change \footnote{The value 0.142 was in this case arrived at based on the original design which gave a power of 0.8 to detect a difference of 0.2 with a one-sided type I error rate of 0.025. This corresponds to a power of 0.5 at the point $\mu \approx 0.142$, suggesting that this is the true point of indifference or equipoise. This point is described by \cite{Willan2005} as ``the only non-arbitrary point on the power curve''.}. 
+
+\subsection{Utility}
+
+The value function represents our preferences under conditions of certainty, but in reality we are uncertain about both whether the current standard treatment will be changed (i.e. if the null hypothesis is rejected) and associated change in outcome. We therefore need to define a utility function to encode our preferences for distributions defined on our attributes, which will allow us to calculate expected utility and use this to guide our decisions. 
+
+To deduce the form of our utility function, we first argue that we have one attribute (the change in outcome) which is utility independent of the other two attributes. This means that our preferences for gambles on the change of outcome, with the other attributes kept fixed at some level, does not depend on those levels. So, regardless of how much we have sampled, or whether or not we have incurred the cost of changing the standard treatment or not, our preferences for gambles on the change in outcome will be the same. Given this assumption together with the additive form of the value function, the utility function must have one of the following forms:
+
+\begin{enumerate}
+\item $u(n, d, C) = 1 - e^{-\rho v(n, d, C)}, \rho > 0$,
+\item $u(n, d, C) = v(n, d, C), \rho = 0$,
+\item $u(n, d, C) = -1 + e^{-\rho v(n, d, C)}, \rho > 0$.
+\end{enumerate}
+
+That is, the utility function over the scaler attribute $V$ must be of the exponential form, which implies constant absolute absolute risk aversion. The coefficient of absolute risk aversion is
+$$
+\frac{-u''(v)}{u'(v)} = \rho.
+$$
+Assessment of $u$ then just requires $\rho$. Because $d$ is utility independent of $n$ and $C$, we can think about gambles on $d$ whilst ignoring the value of the other attributes. Doing so, we find the point $d^*$ which is the certainty equivalent to a gamble which will give $d = 0$ and $d = 1.5$ each with probability 0.5. If
+$$
+d^* = 0.5 * 0 + 0.5 * 1.5 = 0.75
+$$
+then $\rho = 0$ and the utility function is additive. If the left-hand side is is greater then $\rho > 0$ (risk averse), and if the right hand side is greater, $\rho < 0$ (risk neutral). Either way, we can determine $\rho$ by setting the utilities equal and solving
+$$
+u(n, d^*, C) = 0.5 u(n, 0, C) + 0.5 u(n, 1.5, C).
+$$
+
+\subsection{Expected utility}
+
+Denote pilot and main sample size by $n_1, n_2$ and respective sample means $x_1, x_2$. The critical values against which these are compared are $d_1, d_2$. The utility is now
+\begin{equation}
+\begin{split}
+u(\mu, x_1, x_2) = 1 - exp(&-\rho(k_d\mu + k_n (n_d1+n_2))I[x_1>d_1, x_2>d_2] \\ 
+  &- \rho(k_n (n_1+n_2) + k_c)I[x_1 > d_1, x_2 < d_2] \\
+  &- \rho(k_n n_1 + k_c)I[x_1 < d_1] ).
+\end{split}
+\end{equation}
+It has not been possible to obtain a closed-form expression for the expected utility over the joint distribution of $\mu, x_1, x_2$. However, the expected utility conditional on $\mu$ is
+\begin{equation}\label{eqn:joint_cond_util}
+\begin{split}
+E_{x_1, x_2, | \mu}[u(\mu, x_1, x_2)] =& Pr[x_1>d_1, x_2>d_2  ~|~ \mu]\left(1-e^{\rho(k_dv_d(\mu) + k_n v_n(n_1+n_2)}\right) + \\
+& Pr[x_1 > d_1, x_2 < d_2  ~|~ \mu] \left(1- e^{-\rho(k_n v_n(n_1+n_2) + k_c)} \right) + \\
+& Pr[x_1 < d_1  ~|~ \mu] \left( 1-e^{-\rho(k_n v_n(n_1) + k_c)} \right).
+\end{split}
+\end{equation}
+Since the sample means are distributed as $x_i | \mu \sim N(\mu, 2\sigma^2/n_i)$ and are independent conditional on $\mu$, the relevant probabilities are easily calculated. We are then left with integrating out the $\mu$:
+$$
+E[u(\mu, x_1, x_2)] = \int E_{x_1, x_2, | \mu} [ u(\mu, x_1, x_2)] p(\mu) d\mu, 
+$$
+where $p(\mu)$ is the normal prior density. Because we are integrating with a normal density weighting function, we can use Gauss-Hermite quadrature (as implemented in the `fastGHQuad` R package \cite{Blocker2018}) to evaluate the integral efficiently and accurately. Specifically, Gauss-Hermite approximates integrals of the form
+$$
+\int_{-\infty}^{\infty} e^{-x^2}f(x) dx \approx \sum_{i=1}^{n} w_i f(x_i).
+$$
+To use when integrating over a normal distribution $y \sim N(\mu, \sigma^2)$, we use the transform $y = \sqrt{2}\sigma x + \mu$ so the integration points are now $x_i\sqrt{2}\sigma + \mu$ and the weights are $w_i / \sqrt{\pi}$.
+
+For the special case where pilot trial OCS are fixed at $\alpha_1 = 1, \beta_1 = 0$ and only the confirmatory trial OCs are to be determined, the exact expected utility can be derived without the need for any numerical integration. Full details are given in the appendix.
+
+\subsection{Optimisation}\label{sec:optimisation}
+
+
 
 \section{Illustration}
 
+We consider the problem described in \cite{Stallard2012}, where a pilot trial is to be conducted prior to a planned main trial, with a shared normally distributed primary endpoint with known standard deviation of $\sigma = 1$ and a MCID of $\delta = 1$. The main trial is planned to have a sample size of $n_2 = 22$, giving OCs $\alpha_2 = 0.025, 1 - \beta_2 = 0.9$. The true treatment effect has a normal prior with $\mu_0 = 0, \sigma_0 = 1$. Note that this represents an archetypal sceptical view of the treatment effect, and that it implies a prior belief that the effect will be greater than the MCID with probability 0.159.
+
+To apply our method, we first set $\hat{d} = 0.605$ as this corresponds to the point of 50\% power in the planned main trial. We suppose that the decision maker is risk averse, with $\rho = 1$. We further suppose that the cost of sampling leads to a choice of $\bar{d} = 0.05$ (i.e. a sample size of 100 would be considered justifiable in exchange for a known treatment effect of 0.05, absent any considerations of treatment cost).
+
+We consider three optimisation problems. First, we optimise jointly over the pilot and main trial programme (`unrestricted'). Then, we optimise only the main trial whilst fixing $\alpha_1 = 1, \beta_1 = 0$ (`no pilot test'). Finally, we fix the main trial OCs at $\alpha_2 = 0.025, 1 - \beta_2 = 0.9$, as was done in \cite{Stallard2012}, and optimise over only the pilot trial OCs (`conventional main trial OCs'). The results are given in Table \ref{tab:ill}. We see that our model suggests a considerably larger sample size than the conventional $n_2 = 21$. When we allow for testing in the pilot, the optimal type I error rate is much larger than conventional levels, while the type I error in the subsequent main trial is substantially smaller. The algorithm takes around 1 second to converge to a solution in the general unrestricted case; for the special case of no pilot test, convergence takes around 0.003 seconds.
+
+\begin{table}
+\small\sf\centering
+\caption{Caption.}
+\input{./tables/ill.txt}
+\label{tab:ill}
+\end{table}
+
+
+
+
+
 \section{Evaluation}
 
-Focus the evaluation on the choice of utility parameters. In the supplementary Rmarkdown, include a live document version which will allow the user to set their own parameters (including for the prior).
+
+
+
+
+
+
+\section{Extensions}
+
+\subsection{Internal pilots}
+
+For internal pilot trials, the pilot data will be used together with the subsequent main trial data in the final assessment of effectiveness. As such, an internal pilot will typically lead to higher power than an external pilot, and may therefore be preferred whenever there is no need for a clear gap between the pilot and main trials. The method described in this paper can be adapted for the internal pilot case. First, note that the sample mean used in the final test is the weighted sum of the sample means $x_1, x_2$ of the pilot and main trials:
+$$
+x_t = \frac{n_1 x_1}{n_1 + n_2} + \frac{n_2 x_2}{n_1 + n_2}.
+$$
+The appendix will show that the sample means to be tested now follow a bivariate normal distribution (conditional on $\mu$):
+$$
+\begin{pmatrix}
+x_1 \\
+x_t
+\end{pmatrix} ~|~ \mu
+\sim BN\left( 
+\begin{pmatrix}
+\mu \\
+\mu
+\end{pmatrix},
+\begin{pmatrix}
+\frac{2\sigma^2}{n_1} & \frac{2\sigma^2}{n_1 + n_2} \\
+\frac{2\sigma^2}{n_1 + n_2} & \frac{2\sigma^2}{n_1 + n_2}
+\end{pmatrix} \right).
+$$
+We can now proceed as before, replacing the $x_2, d_2$ in equation \ref{eqn:joint_cond_util} with $x_t, d_t$ and evaluating the probabilities $Pr[x_1>d_1, x_t>d_t ~|~ \mu]$ and $Pr[x_1>d_1, x_t<d_t  ~|~ \mu]$ with respect to the above bivariate normal, using the R package `mvtnorm' \cite{Genz2017}.  
+
+% Add a very short application, e.g. returing to the illustrative example and comparing the optimal designs resulting from internal and external pilot designs (expecting some kind of efficiency saving from the former, so maybe better error rates or lower sample size). Might also wantto report results differently, with an emphasis on the overall error rates of the full programme, and possibly constrtain these at fixed values and find the optimal error split between the first and second stage tests.
+
+\subsection{Binary endpoint}
+
+Suppose we have a binary primary endpoint, with probability of occurrence of $\tau_C$ in the control arm and $\tau_I$ in the intervention arm. We are interested in the absolute difference in these probabilities, $\tau_C - \tau_I$. We use Beta priors to reflect our prior uncertainty: $\tau_k \sim Beta(a_k, b_k)$ for $k = C, I$. We can extend our approach to this scenario by returning to equation \ref{eqn:joint_cond_util} and noting that, now conditioning on the pair of probabilities $(\tau_C, \tau_I)$, the probabilities of test success/failure at each stage can still be easily calculated. Now, rather than integrating the conditional expectation over a single normal prior density, we must integrate over the two independent beta distributions for $(\tau_C, \tau_I)$. Unable to use Gauss-Hermite quadrature, we can instead use more general numerical integration methods such as the adaptive procedure implemented in the R package `cubature' \cite{Narasimhan2018}. This is, however, slower by a factor of $10^3$, suggesting the time needed to solve the optimisation problem will be around 15 minutes.
+
+%Given that the optimisation algorithm described in Section \ref{sec:optimisation} requires in the order of $10^4$ evaluations to converge, we can expect a run time of around 10 minutes to find an optimal design for the binary endpoint case.
+
+\subsection{Unknown variance}
+
+When the variance of the primary outcome $\sigma^2$ is unknown, we can extend the method as follows. Firstly, we note that the tests at each stage of the design will no longer be comparing sample means, but rather t-statistics incorporating a pooled estimate of the variance:
+$$
+t_i = \frac{x_i}{\sqrt{2\hat{\sigma}^2 / n_i}}.
+$$
+Conditional on $\mu, \sigma^2$, these will follow non-central t-distributions with degrees of freedom $2n_i - 2$ and non-centrality parameter $\mu/\sqrt{2\sigma^2 / n_i}$. As such, the relevant probabilities in equation \ref{eqn:joint_cond_util} (now conditioning on $\mu$ and $\sigma^2$) can be readily calculated. Given this conditional utility, we can proceed as before by numerically integrating over the prior distribution, now a joint prior $p(\mu, \sigma^2) = p(\mu)p(\sigma^2)$ assuming $\mu$ and $\sigma^2$ are independent. As in the case of a binary endpoint, we can use a numerical method like the `cubature' package to do the integration, noting that computation time will again be increased.
 
 \section{Discussion}
 
@@ -96,10 +257,111 @@ The Authors declare that there is no conflict of interest.
 \end{dci}
 
 \begin{funding}
-This work was supported by the Medical Research Council [grant number xxx].
+This work was supported by the Medical Research Council [grant number MR/N015444/1].
 \end{funding}
 
 \bibliographystyle{SageV}
 \bibliography{C:/Users/meddwilb/Documents/Literature/Databases/DTWrefs}
+
+\section*{Appendix}
+
+\subsection*{Expected utility for a single trial}
+
+Denote the sample mean in the trial by $x$, and the critical value in the test by $d$. The utility function is denoted by $u(\mu, x)$. For the case $\rho = 0$, the utility function is the value function. The expected utility is then
+\begin{align*}
+E[u(\mu, x)] =& E_x\left[ E_{\mu | x} [u(\mu, x)] \right] \\
+=& E_x \left[ I\{x > d\} (k_d \mu_1 + k_n n) + I\{x \leq d\} (k_n n + k_c) \right] \\
+=& k_n n + Pr(x > d) k_d E_{x | x > d} \left[ \mu_1 \right] + Pr(x \leq d)k_c,
+\end{align*}
+The two probabilities follow from the marginal distribution of the sample mean, which is normal with mean $\mu_0$ and variance $\sigma_0^2 + \frac{2\sigma^2}{n}$. So, for example,
+$$
+Pr[x > d] = 1- \Phi\left(\frac{d-\mu_0}{\sqrt{\sigma_0^2 + \frac{2\sigma^2}{n}}} \right)
+$$
+The expectation is of $\mu_1$, the mean of the posterior distribution on $\mu$ given $x$:
+$$
+\mu_1 = \sigma_1^2 \left( \frac{\mu_0}{\sigma_0^2} + \frac{xn}{2\sigma^2} \right), ~ \sigma_1^2 = 1/\left( \frac{1}{\sigma_0^2} + \frac{n}{2\sigma^2} \right).
+$$
+We are then left with calculating the expected value of this posterior mean with respect to the distribution of $x$ conditional on $x > d$. This is a truncated normal with mean
+$$
+E_{x | x > d} \left[ \mu_1 \right] = \mu_0 + \sigma_x \phi\left(\frac{d - \mu_0}{\sigma_x} \right)/\left(1 - \Phi\left(\frac{d - \mu_0}{\sigma_x}\right) \right).
+$$
+
+For the case $\rho > 0$, we again start with the law of total expectation giving $E[u(\mu, x)] = E_x\left[ E_{\mu | x} [u(\mu, x)] \right]$. Then,
+\begin{align*}
+E_{\mu | x} [u(\mu, x)] &= E_{\mu | x}[1 - e^{-\rho(k_d\mu + k_n n) I\{x > d\} -\rho(k_n n + k_c) I\{x < d\}}] \\
+&= I\{x > d\} E_{\mu | x}[1 - e^{-\rho(k_d\mu + k_n n)}] + I\{x < d\}E_{\mu | x}[1 - e^{-\rho(k_n n + k_c)}]
+\end{align*}
+
+Since the second term doesn't include $\mu$, we can take the expectation operator out. For the first term we have:
+$$
+E_{\mu | x}[1 - e^{-\rho(k_d\mu + k_n n)}] = 1 - e^{-\rho k_n n} E_{\mu | x}[e^{-\rho k_d \mu}]
+$$
+The expectation here is over the posterior distribution for $\mu$ given $x$, which (assuming $\sigma^2$ is known) is normal by conjugacy. Specifically
+$$
+\mu |x \sim N \left( \mu_1 = \sigma_1^2 \left( \frac{\mu_0}{\sigma_0^2} + \frac{xn}{2\sigma^2} \right), ~ \sigma_1^2 = 1/\left( \frac{1}{\sigma_0^2} + \frac{n}{2\sigma^2} \right) \right).
+$$
+Note that this follows from the normal likelihood for the sample difference, $x | \mu  \sim N(\mu, 2\sigma^2/n)$. It takes the form as a moment generating function. For a normally distributed $Y \sim N(a, b^2)$,
+$$
+E[e^{tY}] = e^{ta + \frac{b^2 t^2}{2}}.
+$$
+This gives us
+$$
+E_{\mu | x}[1 - e^{-\rho(k_d\mu + k_n n)}] = 1 - e^{-\rho k_n n} \left(e^{t\mu_1 + \frac{\sigma_1^2 t^2}{2}} \right),
+$$
+where $t = \rho k_d$. This then all gives an expected utility conditional on $x$ of
+$$
+E_{\mu | x} [u(\mu, x)] = I\{x > d\} \left[1 - e^{-\rho k_n n} \left(e^{t\mu_1 + \frac{\sigma_1^2 t^2}{2}} \right) \right] + I\{x < d\}\left[1 - e^{-\rho(k_n n + k_c)}\right].
+$$
+We now need to take the expectation of this over the marginal distribution for $x$:
+$$
+\begin{aligned}
+E[u(\mu, x)] &= E_x\left[ E_{\mu | x} [u(\mu, x)] \right] \\
+ &= E_x\left[ I\{x > d\} \left(1 - e^{-\rho k_n n} e^{t\sigma_1^2(\frac{\mu_0}{\sigma_0^2} + \frac{xn}{2\sigma^2}) + \frac{\sigma_1^2 t^2}{2}} \right) \right] + 
+ E_x\left[ I\{x < d\}\left(1 - e^{-\rho(k_n n + k_c)}\right) \right].
+\end{aligned}
+$$
+The first term is equal to
+$$
+Pr[x > d] \left( 1 - e^{-\rho k_n n} e^{\frac{\sigma_1^2 t^2}{2}} e^{\frac{t\sigma_1^2 \mu_0}{\sigma_0^2}}   \right) E_x \left[ e^{\frac{t\sigma_1^2 x n}{2\sigma^2}} \right].
+$$
+For the expectation, we again use a moment generating function. Here, the sample difference $x$ is normally distributed $N(\mu_0, \sigma_x^2 = \sigma^2 + \frac{2\sigma^2}{n})$ but we have conditioned on $x > d$ and so have a truncated normal. The moment generating function for $Y \sim N(a,b^2), Y > d$ is
+$$
+E[e^{rY}] =  \left( e^{ar + \frac{b^2 r^2}{2} } \right) \left(\frac{1 - \Phi(\frac{d-a}{b} - br)}{1 - \Phi(\frac{d-a}{b} )} \right)
+$$
+So, for our case we have
+$$
+ E_x \left[ e^{\frac{t\sigma_1^2 x n}{2\sigma^2}} \right] = \left( e^{\mu_0 r + \frac{\sigma_x^2 r^2}{2} } \right) \left(\frac{1 - \Phi(\frac{d-\mu_0}{\sigma_x} - \sigma_x r)}{1 - \Phi(\frac{d-\mu_0}{\sigma_x})} \right),
+$$
+where $r = \frac{t \sigma_1^2 n}{2\sigma^2}$. Finally, putting everything together, we get
+\begin{align*}
+E[u(\mu, x)] =& E_x\left[ E_{\mu | x} [u(\mu, x)] \right] \\
+ =& \left[ 1- \Phi\left(\frac{d-\mu_0}{\sqrt{\sigma_0^2 + \frac{2\sigma^2}{n}}} \right)  \right] \left[ 1 - e^{-\rho k_n n} e^{\frac{\sigma_1^2 t^2}{2}} e^{\frac{t\sigma_1^2 \mu_0}{\sigma_0^2}} \left( e^{\mu_0 r + \frac{\sigma_x^2 r^2}{2} } \right) \left(\frac{1 - \Phi(\frac{d-\mu_0}{\sigma_x} - \sigma_x r)}{1 - \Phi(\frac{d-\mu_0}{\sigma_x})} \right)  \right] + \\
+ & \Phi\left(\frac{d-\mu_0}{\sqrt{\sigma_0^2 + \frac{2\sigma^2}{n}}} \right) \left[1 - e^{-\rho(k_n n + k_c)}\right].
+\end{align*}
+the case $\rho < 0$ follows immediately.
+
+\subsection*{Internal pilot sampling distribution}
+
+Recall that we have sample means from both the first and second stage of an internal pilot design, $x_1, x_2$, with the combined sample mean $x_t = \frac{n_1 x_1}{n_1 + n_2} + \frac{n_2 x_2}{n_1 + n_2}$ being used at the final testing stage. The distribution of the combined mean, conditional on $\mu$ is $x_t | \mu ~ N\left( \mu, \frac{2\sigma^2}{n_1 + n_2} \right)$. To fully specify the joint distribution of $(x_1, x_t)$ we require the covariance:
+$$
+cov(x_1, x_t) = E[x_1 x_t] - E[x_1] E[x_t].
+$$
+By the law of total expectation,
+\begin{align*}
+E[x_1 x_t] &= E_{x_1} ( E_{x_1 x_t | x_1}[x_1 x_t] ) \\
+&= E_{x_1} ( x_1 E_{x_t | x_1}[x_t] ) \\
+&= E_{x_1} \left( x_1 E_{x_t | x_1}\left[\frac{n_1 x_1}{n_1 + n_2} + \frac{n_2 x_2}{n_1 + n_2}\right] \right) \\
+&= E_{x_1} \left( \frac{n_1 x_1^2}{n_1 + n_2} + \frac{n_2 x_1 \mu}{n_1 + n_2} \right) \\
+&= \frac{n_1}{n_1 + n_2} E[x_1^2] + \frac{n_2}{n_1 + n_2} E[x_1] \mu \\
+&= \frac{n_1}{n_1 + n_2} (var(x_1) + E[x_1]^2) + \frac{n_2}{n_1 + n_2} \mu^2 \\
+&= \frac{n_1}{n_1 + n_2} \left(\frac{2\sigma^2}{n_1} + \mu^2\right) + \frac{n_2}{n_1 + n_2} \mu^2.
+\end{align*}
+Then,
+\begin{align*}
+cov(x_1, x_t) &= \frac{n_1}{n_1 + n_2} \left(\frac{2\sigma^2}{n_1} + \mu^2\right) + \frac{n_2}{n_1 + n_2} \mu^2 - \mu^2 \\
+&= \frac{2\sigma^2}{n_1 + n_2} + \frac{n_1 \mu^2}{n_1 + n_2} + \frac{n_2 \mu^2}{n_1 + n_2} - \mu^2 \\
+&= \frac{2\sigma^2}{n_1 + n_2} .
+\end{align*}
+
 
 \end{document}

@@ -1,0 +1,103 @@
+\begin{thebibliography}{10}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{DOI:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{DOI:\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
+\providecommand{\eprint}[2][]{\url{#2}}
+
+\bibitem{Craig2008}
+Craig P, Dieppe P, Macintyre S et~al.
+\newblock Developing and evaluating complex interventions: the new medical
+  research council guidance.
+\newblock \emph{BMJ: British Medical Journal} 2008; 337.
+\newblock \doi{10.1136/bmj.a1655}.
+
+\bibitem{Eldridge2016}
+Eldridge SM, Lancaster GA, Campbell MJ et~al.
+\newblock Defining feasibility and pilot studies in preparation for randomised
+  controlled trials: Development of a conceptual framework.
+\newblock \emph{{PLOS} {ONE}} 2016; 11(3): e0150205.
+\newblock \doi{10.1371/journal.pone.0150205}.
+\newblock \urlprefix\url{http://dx.doi.org/10.1371/journal.pone.0150205}.
+
+\bibitem{Lancaster2004}
+Lancaster GA, Dodd S and Williamson PR.
+\newblock Design and analysis of pilot studies: recommendations for good
+  practice.
+\newblock \emph{Journal of Evaluation in Clinical Practice} 2004; 10(2):
+  307--312.
+\newblock \doi{10.1111/j..2002.384.doc.x}.
+\newblock \urlprefix\url{http://dx.doi.org/10.1111/j..2002.384.doc.x}.
+
+\bibitem{Wilson2015}
+Wilson DT, Walwyn RE, Brown J et~al.
+\newblock Statistical challenges in assessing potential efficacy of complex
+  interventions in pilot or feasibility studies.
+\newblock \emph{Statistical Methods in Medical Research} 2015; 25(3):
+  997--1009.
+\newblock \doi{10.1177/0962280215589507}.
+\newblock \urlprefix\url{http://dx.doi.org/10.1177/0962280215589507}.
+
+\bibitem{Teare2014}
+Teare M, Dimairo M, Shephard N et~al.
+\newblock Sample size requirements to estimate key design parameters from
+  external pilot randomised controlled trials: a simulation study.
+\newblock \emph{Trials} 2014; 15(1): 264.
+\newblock \doi{10.1186/1745-6215-15-264}.
+\newblock \urlprefix\url{http://www.trialsjournal.com/content/15/1/264}.
+
+\bibitem{Lee2014}
+Lee E, Whitehead A, Jacques R et~al.
+\newblock The statistical interpretation of pilot trials: should significance
+  thresholds be reconsidered?
+\newblock \emph{BMC Medical Research Methodology} 2014; 14(1): 41.
+\newblock \doi{10.1186/1471-2288-14-41}.
+\newblock \urlprefix\url{http://www.biomedcentral.com/1471-2288/14/41}.
+
+\bibitem{Cocks2013}
+Cocks K and Torgerson DJ.
+\newblock Sample size calculations for pilot randomized trials: a confidence
+  intervalÂ approach.
+\newblock \emph{Journal of Clinical Epidemiology} 2013; 66(2): 197 -- 201.
+\newblock \doi{http://dx.doi.org/10.1016/j.jclinepi.2012.09.002}.
+\newblock
+  \urlprefix\url{http://www.sciencedirect.com/science/article/pii/S0895435612002740}.
+
+\bibitem{Willan2005}
+Willan AR and Pinto EM.
+\newblock The value of information and optimal clinical trial design.
+\newblock \emph{Statistics in Medicine} 2005; 24(12): 1791--1806.
+\newblock \doi{10.1002/sim.2069}.
+\newblock \urlprefix\url{http://dx.doi.org/10.1002/sim.2069}.
+
+\bibitem{Blocker2018}
+Blocker AW.
+\newblock \emph{fastGHQuad: Fast 'Rcpp' Implementation of Gauss-Hermite
+  Quadrature}, 2018.
+\newblock \urlprefix\url{https://CRAN.R-project.org/package=fastGHQuad}.
+\newblock R package version 1.0.
+
+\bibitem{Stallard2012}
+Stallard N.
+\newblock Optimal sample sizes for phase {II} clinical trials and pilot
+  studies.
+\newblock \emph{Statistics in Medicine} 2012; 31(11-12): 1031--1042.
+\newblock \doi{10.1002/sim.4357}.
+\newblock \urlprefix\url{http://dx.doi.org/10.1002/sim.4357}.
+
+\bibitem{Genz2017}
+Genz A, Bretz F, Miwa T et~al.
+\newblock \emph{{mvtnorm}: Multivariate Normal and t Distributions}, 2017.
+\newblock \urlprefix\url{https://CRAN.R-project.org/package=mvtnorm}.
+\newblock R package version 1.0-6.
+
+\bibitem{Narasimhan2018}
+Narasimhan B, Johnson SG, Hahn T et~al.
+\newblock \emph{cubature: Adaptive Multivariate Integration over Hypercubes},
+  2018.
+\newblock \urlprefix\url{https://CRAN.R-project.org/package=cubature}.
+\newblock R package version 2.0.3.
+
+\end{thebibliography}
