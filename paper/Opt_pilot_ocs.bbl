@@ -65,12 +65,11 @@ Cocks K and Torgerson DJ.
 \newblock
   \urlprefix\url{http://www.sciencedirect.com/science/article/pii/S0895435612002740}.
 
-\bibitem{Willan2005}
-Willan AR and Pinto EM.
-\newblock The value of information and optimal clinical trial design.
-\newblock \emph{Statistics in Medicine} 2005; 24(12): 1791--1806.
-\newblock \doi{10.1002/sim.2069}.
-\newblock \urlprefix\url{http://dx.doi.org/10.1002/sim.2069}.
+\bibitem{French2000}
+French S and Insua DR.
+\newblock \emph{Statistical Decision Theory}.
+\newblock Number~9 in Kendall's Library of Statistics, Oxford University Press,
+  2000.
 
 \bibitem{Blocker2018}
 Blocker AW.

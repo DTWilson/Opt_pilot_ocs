@@ -247,9 +247,9 @@ $$
 Implementing all this gives the following function for expected utility:
 
 ```{r}
-exp_u <- function(d, n, d_hat, d_bar, rho, sig, mu_0, sd_0)
+exp_u <- function(x, k, rho, mu_0, sd_0, sig)
 {
-  k <- get_ks(d_bar, d_hat)
+  n <- x[1]; d <- x[2]
   k_d <- k[1]; k_n <- k[2]; k_c <- k[3]
   
   sd_1 <- sqrt(1/(1/sd_0^2 + n/(2*sig^2)))
@@ -258,24 +258,24 @@ exp_u <- function(d, n, d_hat, d_bar, rho, sig, mu_0, sd_0)
   r <- (t * sd_1^2 *n)/(2*sig^2)
   
   if(rho > 0){
-  (1 - pnorm((d-mu_0)/sig_x)) * (1 - exp(-rho*k_n*n) *
+  -( (1 - pnorm((d-mu_0)/sig_x)) * (1 - exp(-rho*k_n*n) *
                                    exp(sd_1^2 *t*t/2) *
                                    exp(t*sd_1^2 *mu_0/sd_0^2) *
                                    exp(mu_0*r + (sig_x^2*r*r/2)) *
                                    ((1-pnorm((d-mu_0)/sig_x - sig_x*r))/(1-pnorm((d-mu_0)/sig_x)))) +
-    pnorm((d-mu_0)/sig_x) * (1 - exp(-rho*(k_n*n + k_c)))
+    pnorm((d-mu_0)/sig_x) * (1 - exp(-rho*(k_n*n + k_c))) )
   } else if(rho < 0){
-    (1 - pnorm((d-mu_0)/sig_x)) * (-1 + exp(-rho*k_n*n) *
+    -( (1 - pnorm((d-mu_0)/sig_x)) * (-1 + exp(-rho*k_n*n) *
                                    exp(sd_1^2 *t*t/2) *
                                    exp(t*sd_1^2 *mu_0/sd_0^2) *
                                    exp(mu_0*r + (sig_x^2*r*r/2)) *
                                    ((1-pnorm((d-mu_0)/sig_x - sig_x*r))/(1-pnorm((d-mu_0)/sig_x)))) +
-    pnorm((d-mu_0)/sig_x) * (-1 + exp(-rho*(k_n*n + k_c)))
+    pnorm((d-mu_0)/sig_x) * (-1 + exp(-rho*(k_n*n + k_c))) )
   } else {
     al <- (d-mu_0)/sig_x
     z <- 1-pnorm(al)
     m_x_trunc <- mu_0 + sig_x*dnorm(al)/z
-    k_n*n + k_d*((sd_1^2)*(mu_0/(sd_0^2) + m_x_trunc*n/(2*sig^2)))*(1 - pnorm((d-mu_0)/sig_x))  + k_c*( pnorm((d-mu_0)/sig_x) )
+    -(k_n*n + k_d*((sd_1^2)*(mu_0/(sd_0^2) + m_x_trunc*n/(2*sig^2)))*(1 - pnorm((d-mu_0)/sig_x))  + k_c*( pnorm((d-mu_0)/sig_x) ))
   }
 }
 ```
@@ -312,7 +312,7 @@ us <- replicate(N, test_sim(sig, d=0.3, rho, mu_0, sd_0, k)[3])
 # 98% confidence interval around the MC estimate
 c(mean(us) - qnorm(0.99)*sqrt(var(us)/N), mean(us) + qnorm(0.99)*sqrt(var(us)/N))
 
-exp_u(d=0.3, n, d_hat, d_bar, rho, sig, mu_0, sd_0)
+exp_u(c(n, 0.3), k, rho, mu_0, sd_0, sig)
 ```
 
 ### MEU for a pilot and confirmatory trial programme
@@ -419,20 +419,117 @@ ghQuad(f=exp_u_mu, rule=rule, n1=n1, d1=d1, n2=n2, d2=d2,
 # 40.114 41.209 52.13059 43.214 49.596 218.44   100
 ```
 
+We can try and get derivatives to help with the optimisation. Since we are using quarature to approximate the integral, the derivatives of the overall expected utility will just be a sum of derivatives of the conditional expected utility at the set of quadrautre points and with the same weights. So, looking at the conditional expected utility we can start by differentiating the various components.
+$$
+\frac{d}{dn} Pr[x > d ~|~\mu] = \frac{d}{dn} \left[1 - \Phi \left(\frac{d-\mu}{\sqrt{2\sigma^2/n}} \right)\right] = -\phi\left(\frac{d-\mu}{\sqrt{2\sigma^2/n}} \right) \frac{d-\mu}{2\sqrt{2\sigma^2/n}}
+$$
+
+$$
+\frac{d}{dd} Pr[x > d ~|~\mu] = \frac{d}{dd} \left[1 - \Phi \left(\frac{d-\mu}{\sqrt{2\sigma^2/n}} \right)\right] = -\phi\left(\frac{d-\mu}{\sqrt{2\sigma^2/n}} \right) \frac{1}{\sqrt{2\sigma^2/n}}
+$$
+Re-wrting the expected conditional utility:
+$$
+\begin{aligned}
+f(n_1,n_2,d_1,d_2) = &g(n_1,d_1)g(n_2,d_2) - g(n_1,d_1)g(n_2,d_2)\exp(-\rho(k_d\mu + k_n (n_1+n_2)) +\\
+&g(n_1,d_1)\bar{g}(n_2,d_2) - g(n_1,d_1)\bar{g}(n_2,d_2)\exp(-\rho(k_n (n_1+n_2) + k_c)) + \\
+&\bar{g}(n_1,d_1) - \bar{g}(n_1,d_1)\exp(-\rho(k_n n_1 + k_c))
+\end{aligned}
+$$
+```{r}
+g <- function(n,d,mu,sig)
+{
+  1 - pnorm((d-mu)/sqrt(2*sig^2/n))
+}
+
+g_dn <- function(n,d,mu,sig)
+{
+  -dnorm((d-mu)/sqrt(2*sig^2/n))*(d-mu)/(2*sqrt(2*n*sig^2))
+}
+
+g_dd <- function(n,d,mu,sig)
+{
+  -dnorm((d-mu)/sqrt(2*sig^2/n))/sqrt(2*sig^2/n)
+}
+
+f_dn1 <- function(n1,d1,n2,d2,mu,sig,k,rho)
+{
+  g_dn(n1,d1,mu,sig)*g(n2,d2,mu,sig) - g(n2,d2,mu,sig)*(g_dn(n1,d1,mu,sig)*exp(-rho*(k[1]*mu + k[2]*(n1+n2))) + g(n1,d1,mu,sig)*exp(-rho*(k[1]*mu + k[2]*(n1+n2)))*(-rho*k[2])) +
+    g_dn(n1,d1,mu,sig)*(1-g(n2,d2,mu,sig)) - (1-g(n2,d2,mu,sig))*(g_dn(n1,d1,mu,sig)*exp(-rho*( k[2]*(n1+n2)+k[3])) + g(n1,d1,mu,sig)*exp(-rho*( k[2]*(n1+n2)+k[3]))*(-rho*k[2])) +
+    (-g_dn(n1,d1,mu,sig)) - (-g_dn(n1,d1,mu,sig))*exp(-rho*(k[2]*n1+k[3])) - (1-g(n1,d1,mu,sig))*exp(-rho*(k[2]*n1+k[3]))*(-rho*k[2])
+}
+
+f_dn2 <- function(n1,d1,n2,d2,mu,sig,k,rho)
+{
+  g(n1,d1,mu,sig)*g_dn(n2,d2,mu,sig) - g(n1,d1,mu,sig)*(g_dn(n2,d2,mu,sig)*exp(-rho*(k[1]*mu + k[2]*(n1+n2))) + g(n2,d2,mu,sig)*exp(-rho*(k[1]*mu + k[2]*(n1+n2)))*(-rho*k[2])) +
+    g(n1,d1,mu,sig)*(-g_dn(n2,d2,mu,sig)) - g(n1,d1,mu,sig)*( (-g_dn(n2,d2,mu,sig))*exp(-rho*( k[2]*(n1+n2)+k[3])) + (1-g(n2,d2,mu,sig))*exp(-rho*( k[2]*(n1+n2)+k[3]))*(-rho*k[2]))
+}
+
+f_dd1 <- function(n1,d1,n2,d2,mu,sig,k,rho)
+{
+  g_dd(n1,d1,mu,sig)*g(n2,d2,mu,sig) - g_dd(n1,d1,mu,sig)*g(n2,d2,mu,sig)*exp(-rho*(k[1]*mu + k[2]*(n1+n2))) +
+    g_dd(n1,d1,mu,sig)*(1-g(n2,d2,mu,sig)) - g_dd(n1,d1,mu,sig)*(1-g(n2,d2,mu,sig))*exp(-rho*( k[2]*(n1+n2)+k[3])) +
+    (- g_dd(n1,d1,mu,sig)) - (- g_dd(n1,d1,mu,sig))*exp(-rho*(k[2]*n1+k[3]))
+}
+
+f_dd2 <- function(n1,d1,n2,d2,mu,sig,k,rho)
+{
+  g(n1,d1,mu,sig)*g_dd(n2,d2,mu,sig) - g(n1,d1,mu,sig)*g_dd(n2,d2,mu,sig)*exp(-rho*(k[1]*mu + k[2]*(n1+n2))) +
+    g(n1,d1,mu,sig)*(-g_dd(n2,d2,mu,sig)) - g(n1,d1,mu,sig)*(-g_dd(n2,d2,mu,sig))*exp(-rho*( k[2]*(n1+n2)+k[3]))
+}
+
+
+# Check against numeric gradients
+n1 <- 10; d1 <- 0.1; n2 <- 15; d2 <- 0
+mu <- 0.1; rho <- 1
+
+grad(function(nn) exp_u_mu(mu, nn, d1, n2, d2, k, rho, mu_0, sd_0, sig), n1)
+f_dn1(n1,d1,n2,d2,mu,sig,k,rho)
+
+grad(function(nn) exp_u_mu(mu, n1, d1, nn, d2, k, rho, mu_0, sd_0, sig), n2)
+f_dn2(n1,d1,n2,d2,mu,sig,k,rho)
+
+grad(function(dd) exp_u_mu(mu, n1, dd, n2, d2, k, rho, mu_0, sd_0, sig), d1)
+f_dd1(n1,d1,n2,d2,mu,sig,k,rho)
+
+grad(function(dd) exp_u_mu(mu, n1, d1, n2, dd, k, rho, mu_0, sd_0, sig), d2)
+f_dd2(n1,d1,n2,d2,mu,sig,k,rho)
+
+ff <- function(mm,n1,d1,n2,d2,sig,k,rho){f_dn1(n1,d1,n2,d2,mm,sig,k,rho)}
+
+exp_u_joint_grad <- function(x, k, rho, mu_0, sd_0, sig, rule)
+{
+  n1 <- x[1]; d1 <- x[2]; n2 <- x[3]; d2 <- x[4]
+  g_n1 <- ghQuad(f=f_dn1, rule=rule, n1=n1, d1=d1, n2=n2, d2=d2,k=k, rho=rho, sig=sig)/sqrt(pi)
+  g_d1 <- ghQuad(f=f_dd1, rule=rule, n1=n1, d1=d1, n2=n2, d2=d2,k=k, rho=rho, sig=sig)/sqrt(pi)
+  g_n2 <- ghQuad(f=f_dn2, rule=rule, n1=n1, d1=d1, n2=n2, d2=d2,k=k, rho=rho, sig=sig)/sqrt(pi)
+  g_d2 <- ghQuad(f=f_dd2, rule=rule, n1=n1, d1=d1, n2=n2, d2=d2,k=k, rho=rho, sig=sig)/sqrt(pi)
+  return(-c(g_n1, g_d1, g_n2, g_d2))
+}
+
+grad(exp_u_joint, c(n1,d1,n2,d2), k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule)
+exp_u_joint_grad(c(n1,d1,n2,d2), k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule)
+```
+
+
 ## Illustration
 
 To illustrate the method, we look at the problem described in Stallard (2012). There, the MCID and the outcome standard deviation were both equal to 1, implying a standard phase III sample size of 22 per arm to get 0.9 power with a one-sided type I error rate of 0.025. Taking the same approach as before to setting $\hat{d}$, we find that standard phase III would have had around 50\% power at $\hat{d} = 0.605$. We set $\bar{d} = 0.05$, giving us a similar costs of sampling as our previous example (inflating a a factor of five to relfect the interest in an effect of around 1 rather than 0.2).
 
 ```{r, eval=F}
-mu_0 <- 0; sd_0 <- 1; sig <- 1
-rho <- 1; d_bar <- 0.05; d_hat <- 0.62
+mu_0 <- 0; sd_0 <- 1; sig <- 1; mu_1 <- 1
+rho <- -5; d_bar <- 0.2; d_hat <- 0.62
+
+#mu_0 <- 0; sd_0 <- 0.25; sig <- 0.25; mu_1 <- 0.2
+#rho <- 0; d_bar <- 0.01; d_hat <- 0.142
+
 k <- get_ks(d_bar, d_hat)
 rule <- gaussHermiteData(100)
 rule$x <- rule$x*sqrt(2)*sd_0 + mu_0
 
+
 ptm <- proc.time()
 opt <- genoud(exp_u_joint, 4, Domains = matrix(c(0,-40,0,0,300,10,300,10),ncol=2), 
-              print.level = 0, boundary.enforcement = 2, 
+              print.level = 0, boundary.enforcement = 2, starting.values = c(10, 0.1, 10, 0.1),
               k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule)
 proc.time() - ptm
 
@@ -440,49 +537,53 @@ x <- opt$par
 
 r1 <- c(x, 
          1 - pnorm(x[2]/sqrt(2*(sig^2)/x[1])),
-         pnorm(x[2], 1, sqrt(2*sig^2/x[1])),
+         pnorm(x[2], mu_1, sqrt(2*sig^2/x[1])),
          1 - pnorm(x[4]/sqrt(2*(sig^2)/x[3])),
-         pnorm(x[4], 1, sqrt(2*sig^2/x[3])))
+         pnorm(x[4], mu_1, sqrt(2*sig^2/x[3])),
+        opt$value)
 r1
 
-opt <- genoud(exp_u_joint, 4, Domains = matrix(c(0,-40,0,0, 300,-39,300,10),ncol=2), 
-              print.level = 0, boundary.enforcement = 2, 
-              k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule)
+opt <- genoud(exp_u, 2, Domains = matrix(c(0,-40,300,10),ncol=2), 
+              print.level = 0, boundary.enforcement = 2, starting.values = c(10, 0.1),
+              k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig)
 
 x <- opt$par
 
-r2 <- c(x, 
+r2 <- c(c(0,0,x), 
+         1,
+         0,
          1 - pnorm(x[2]/sqrt(2*(sig^2)/x[1])),
-         pnorm(x[2], 1, sqrt(2*sig^2/x[1])),
-         1 - pnorm(x[4]/sqrt(2*(sig^2)/x[3])),
-         pnorm(x[4], 1, sqrt(2*sig^2/x[3])))
+         pnorm(x[2], mu_1, sqrt(2*sig^2/x[1])),
+        opt$value)
 
 opt <- genoud(exp_u_joint, 4, Domains = matrix(c(0,-40,20.99,0.6, 300,10,21,0.604858),ncol=2), 
-              print.level = 0, boundary.enforcement = 2, 
+              print.level = 0, boundary.enforcement = 2, starting.values = c(10, 0.01, 20.995, 0.603),
               k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule)
 
 x <- opt$par
 
 r3 <- c(x, 
          1 - pnorm(x[2]/sqrt(2*(sig^2)/x[1])),
-         pnorm(x[2], 1, sqrt(2*sig^2/x[1])),
+         pnorm(x[2], mu_1, sqrt(2*sig^2/x[1])),
          1 - pnorm(x[4]/sqrt(2*(sig^2)/x[3])),
-         pnorm(x[4], 1, sqrt(2*sig^2/x[3])))
+         pnorm(x[4], mu_1, sqrt(2*sig^2/x[3])),
+        opt$value)
  
 tab <- as.data.frame(rbind(r1, r2, r3))
 
 tab <- data.frame(pr = c("Unrestricted", "No pilot test", "Conventional main trial OCs"),
                   n_1=round(tab[,1]), n_2=round(tab[,3]),
                   a_1 = round(tab[,5], 2), p_1 = round(tab[,6], 3),
-                  a_2 = round(tab[,7], 3), p_2 = round(tab[,8], 3)
+                  a_2 = round(tab[,7], 3), p_2 = round(tab[,8], 3),
+                  u = round(tab[,9], 3)
                    )
-colnames(tab) <- c("Problem", "$n_1$", "$n_2$", "$\\alpha_1$", "$1 - \\beta_1$", "$\\alpha_2$", "$1 - \\beta_2$")
+colnames(tab) <- c("Problem", "$n_1$", "$n_2$", "$\\alpha_1$", "$\\beta_1$", "$\\alpha_2$", "$\\beta_2$", "Expected utility")
 tab[2,2] <- 0
 tab
 
-print(xtable(tab, digits = c(1,0,0,0,2,3,3,3)), booktabs = T, include.rownames = F, 
-       sanitize.text.function = function(x) {x}, floating = F,
-       file = "./paper/tables/ill.txt")
+#print(xtable(tab, digits = c(1,0,0,0,2,3,3,3)), booktabs = T, include.rownames = F, 
+#       sanitize.text.function = function(x) {x}, floating = F,
+#       file = "./paper/tables/ill.txt")
 ```
 
 
@@ -630,8 +731,11 @@ What can we say from these?
 We can optimise over the design parameters $n_1, d_1, n_2, d_2$ (which are equivalent to the OCs $\alpha_1, \beta_1, \alpha_2, \beta_2$. In addition to optimising without any contraints, we also consider the case where $n_1$ must be greater than equal to 6. This reflects the scenario where the pilot trial will be going ahead in any case to assess feasibility questions, and will use a standard pilot sample size of 6 (clusters, leading to 30 pareticipants) in each arm.
 
 ```{r, eval=F}
-# Get optimal programmes for a range of risk aversions
-k <- get_ks(0.01, 0.142)
+mu_0 <- 0; sd_0 <- 0.25; sig <- 0.25; mu_1 <- 0.2
+rho <- 0; d_bar <- 0.01; d_hat <- 0.142
+k <- get_ks(d_bar, d_hat)
+rule <- gaussHermiteData(100)
+rule$x <- rule$x*sqrt(2)*sd_0 + mu_0
 
 df <- expand.grid(rho = seq(5, -5, length.out = 20),
                  d_bar = seq(0.002, 0.02, length.out = 20))
@@ -641,17 +745,19 @@ df <- expand.grid(rho = seq(5, -5, length.out = 20),
 rs <- NULL
 x <- c(10, 0.001, 10, 0.001)
 for(i in 1:nrow(df)){
-  k <- get_ks(df$d_bar[i], 0.142)
-  #opt <- psoptim(x, exp_u, k=k, rho=df$rho[i], mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule, 
-   #                lower = c(0,-2,0,0), upper= c(300,3,300,3), control=list(maxit=1000))
-  opt <- genoud(exp_u, 4, Domains = matrix(c(6,-2,0,0,300,3,300,3),ncol=2), print.level = 0, boundary.enforcement = 2, starting.values = x,
-                 k=k, rho=df$rho[i], mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule)
+  k <- get_ks(df$d_bar[i], d_hat)
+  opt <- psoptim(x, exp_u_joint, k=k, rho=df$rho[i], mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule, 
+                  lower = c(0,-5,0,0), upper= c(300,5,300,5), gr=exp_u_joint_grad)
+              # method = "L-BFGS-B")#, control=list(maxit=1000))
+  #opt <- genoud(exp_u_joint, 4, Domains = matrix(c(0,-5,0,0,300,5,300,5),ncol=2), print.level = 0, boundary.enforcement = 2, gradient.check = T, starting.values = x,
+  #              gr=exp_u_joint_grad,
+  #               k=k, rho=df$rho[i], mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule)
   x <- opt$par
 
   r <- c(x, 1-pnorm(x[2]/sqrt(2*(sig^2)/x[1])),
-    1-pnorm(x[2], 0.2, sqrt(2*sig^2/x[1])),
+    1-pnorm(x[2], mu_1, sqrt(2*sig^2/x[1])),
     1-pnorm(x[4]/sqrt(2*(sig^2)/x[3])),
-    1-pnorm(x[4], 0.2, sqrt(2*sig^2/x[3])))
+    1-pnorm(x[4], mu_1, sqrt(2*sig^2/x[3])))
   
   rs <- cbind(rs,r)
 }
@@ -662,14 +768,10 @@ names(df) <- c("rho", "d_bar", "n1", "d1", "n2", "d2", "a1", "b1", "a2", "b2")
 
 # With no lower bound on pilot n
 #saveRDS(df, "./data/opt_joint.Rda")
-
-# With a lower bound of 6 on pilot n
-#saveRDS(df, "./data/opt_joint_lb6.Rda")
 ```
 
 ```{r}
 df <- readRDS("./data/opt_joint.Rda")
-#df <- readRDS("./data/opt_joint_lb6.Rda")
 
 df2 <- df#[df$d_bar == 0.02,]
 df2$n1 <- df2$n1/100; df2$n2 <- df2$n2/100; 
@@ -688,7 +790,7 @@ p <- ggplot(df2[df2$var != "d",], aes(rho, val, colour=trial, linetype=var)) + g
   scale_y_continuous(breaks=seq(0,1,0.1)) + 
   transition_states(d_bar)
 
-animate(p, nframes=20, fps=5)
+animate(p, nframes=100, fps=25)
 
 
 sub <- df2[df2$d_bar %in% unique(df2$d_bar)[c(1, 4, 8, 12, 16, 18)],]
@@ -788,6 +890,17 @@ Automatic?
 * Internal pilots
 
 Recall that when conditioning on mu we had to calculate the probabilities of: both tests passing; pilot test passing but main test failing; and pilot test failing. These are not much harder to compute in the internal pilot setting - the stats at both stages will be distributed as a bivariate normal so can get the probabilities directly from e.g. mvtnorm (whereas before we could calculate the probabilities for each stage using pnorm and then multiply since they were independant, conditional on mu). In terms of reporting the results, we might be more interested in looking at the optimal value of overall type I and II error rates, and less interested in the pilot OCs alone.
+
+Dofference is that we will now be using mvtnorm for tail probabilities. This is about 80 times slower than norm, so we might expect to solve problems in 1 - 2 minutes now, rather than 1 second.
+
+```{r}
+
+
+ptm <- proc.time()
+y <- replicate(10000, pnorm(1, 2, 1.5))
+#y <- replicate(10000, pmvnorm(c(1,1), mean=c(0,2), sigma=matrix(c(1,0.5,0.5,1), nrow=2)))
+proc.time() - ptm
+```
 
 * Multi-arm and/or multi-stage trials
 
