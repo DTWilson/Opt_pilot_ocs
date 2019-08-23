@@ -7,13 +7,6 @@
   \urlstyle{rm}\Url}\fi
 \providecommand{\eprint}[2][]{\url{#2}}
 
-\bibitem{Craig2008}
-Craig P, Dieppe P, Macintyre S et~al.
-\newblock Developing and evaluating complex interventions: the new medical
-  research council guidance.
-\newblock \emph{BMJ: British Medical Journal} 2008; 337.
-\newblock \doi{10.1136/bmj.a1655}.
-
 \bibitem{Eldridge2016}
 Eldridge SM, Lancaster GA, Campbell MJ et~al.
 \newblock Defining feasibility and pilot studies in preparation for randomised
@@ -21,6 +14,13 @@ Eldridge SM, Lancaster GA, Campbell MJ et~al.
 \newblock \emph{{PLOS} {ONE}} 2016; 11(3): e0150205.
 \newblock \doi{10.1371/journal.pone.0150205}.
 \newblock \urlprefix\url{http://dx.doi.org/10.1371/journal.pone.0150205}.
+
+\bibitem{Craig2008}
+Craig P, Dieppe P, Macintyre S et~al.
+\newblock Developing and evaluating complex interventions: the new medical
+  research council guidance.
+\newblock \emph{BMJ: British Medical Journal} 2008; 337.
+\newblock \doi{10.1136/bmj.a1655}.
 
 \bibitem{Lancaster2004}
 Lancaster GA, Dodd S and Williamson PR.
@@ -30,6 +30,28 @@ Lancaster GA, Dodd S and Williamson PR.
   307--312.
 \newblock \doi{10.1111/j..2002.384.doc.x}.
 \newblock \urlprefix\url{http://dx.doi.org/10.1111/j..2002.384.doc.x}.
+
+\bibitem{Arain2010}
+Arain M, Campbell M, Cooper C et~al.
+\newblock What is a pilot or feasibility study? a review of current practice
+  and editorial policy.
+\newblock \emph{BMC Medical Research Methodology} 2010; 10(1): 67.
+\newblock \doi{10.1186/1471-2288-10-67}.
+\newblock \urlprefix\url{http://www.biomedcentral.com/1471-2288/10/67}.
+
+\bibitem{Thabane2010}
+Thabane L, Ma J, Chu R et~al.
+\newblock A tutorial on pilot studies: the what, why and how.
+\newblock \emph{BMC Medical Research Methodology} 2010; 10(1): 1.
+\newblock \doi{10.1186/1471-2288-10-1}.
+\newblock \urlprefix\url{http://www.biomedcentral.com/1471-2288/10/1}.
+
+\bibitem{Eldridge2016a}
+Eldridge SM, Chan CL, Campbell MJ et~al.
+\newblock {CONSORT} 2010~{s}tatement: extension to randomised pilot and
+  feasibility trials.
+\newblock \emph{{BMJ}} 2016; : i5239\doi{10.1136/bmj.i5239}.
+\newblock \urlprefix\url{http://dx.doi.org/10.1136/bmj.i5239}.
 
 \bibitem{Wilson2015}
 Wilson DT, Walwyn RE, Brown J et~al.
@@ -65,6 +87,66 @@ Cocks K and Torgerson DJ.
 \newblock
   \urlprefix\url{http://www.sciencedirect.com/science/article/pii/S0895435612002740}.
 
+\bibitem{Lakens2018}
+Lakens D, Adolfi FG, Albers CJ et~al.
+\newblock Justify your alpha.
+\newblock \emph{Nature Human Behaviour} 2018; 2(3): 168--171.
+\newblock \doi{10.1038/s41562-018-0311-x}.
+
+\bibitem{Raiffa1961}
+Raiffa H and Schlaifer R.
+\newblock \emph{Applied Statistical Decision Theory}.
+\newblock Harvard College, 1961.
+
+\bibitem{Keeney1976}
+Keeney RL and Raiffa H.
+\newblock \emph{Decisions with multiple objectives: preferences and value
+  tradeoffs}.
+\newblock John Wiley \& Sons, 1976.
+
+\bibitem{Lindley1997}
+Lindley DV.
+\newblock The choice of sample size.
+\newblock \emph{Journal of the Royal Statistical Society: Series D (The
+  Statistician)} 1997; 46(2): 129--138.
+\newblock \doi{10.1111/1467-9884.00068}.
+\newblock \urlprefix\url{http://dx.doi.org/10.1111/1467-9884.00068}.
+
+\bibitem{Hee2016}
+Hee SW, Hamborg T, Day S et~al.
+\newblock Decision-theoretic designs for small trials and pilot studies: A
+  review.
+\newblock \emph{Statistical Methods in Medical Research} 2016; 25(3):
+  1022--1038.
+\newblock \doi{10.1177/0962280215588245}.
+\newblock \urlprefix\url{http://smm.sagepub.com/content/25/3/1022.abstract}.
+\newblock \eprint{http://smm.sagepub.com/content/25/3/1022.full.pdf+html}.
+
+\bibitem{Joseph1997a}
+Joseph L and Wolfson DB.
+\newblock Interval-based versus decision theoretic criteria for the choice of
+  sample size.
+\newblock \emph{Journal of the Royal Statistical Society: Series D (The
+  Statistician)} 1997; 46(2): 145--149.
+\newblock \doi{10.1111/1467-9884.00070}.
+\newblock \urlprefix\url{http://dx.doi.org/10.1111/1467-9884.00070}.
+
+\bibitem{Gittins2000a}
+Gittins J and Pezeshk H.
+\newblock A behavioral bayes method for determining the size of a clinical
+  trial.
+\newblock \emph{Drug Information Journal} 2000; 34(2): 355--363.
+\newblock \doi{10.1177/009286150003400204}.
+\newblock \urlprefix\url{http://dij.sagepub.com/content/34/2/355.abstract}.
+\newblock \eprint{http://dij.sagepub.com/content/34/2/355.full.pdf+html}.
+
+\bibitem{Kikuchi2009}
+Kikuchi T and Gittins J.
+\newblock A behavioral bayes method to determine the sample size of a clinical
+  trial considering efficacy and safety.
+\newblock \emph{Statist Med} 2009; 28(18): 2293--2306.
+\newblock \urlprefix\url{http://dx.doi.org/10.1002/sim.3630}.
+
 \bibitem{French2000}
 French S and Insua DR.
 \newblock \emph{Statistical Decision Theory}.
@@ -78,13 +160,45 @@ Blocker AW.
 \newblock \urlprefix\url{https://CRAN.R-project.org/package=fastGHQuad}.
 \newblock R package version 1.0.
 
-\bibitem{Stallard2012}
-Stallard N.
-\newblock Optimal sample sizes for phase {II} clinical trials and pilot
-  studies.
-\newblock \emph{Statistics in Medicine} 2012; 31(11-12): 1031--1042.
-\newblock \doi{10.1002/sim.4357}.
-\newblock \urlprefix\url{http://dx.doi.org/10.1002/sim.4357}.
+\bibitem{Jones1993}
+Jones DR, Perttunen CD and Stuckman BE.
+\newblock Lipschitzian optimization without the lipschitz constant.
+\newblock \emph{Journal of Optimization Theory and Applications} 1993; 79(1):
+  157--181.
+\newblock \doi{10.1007/bf00941892}.
+
+\bibitem{Rowan1990}
+Rowan T.
+\newblock \emph{Functional Stability Analysis of Numerical Algorithms}.
+\newblock PhD Thesis, 1990.
+
+\bibitem{Ypma2018}
+Ypma J, Borchers HW and Eddelbuettel D.
+\newblock The nlopt nonlinear-optimization package, 2018.
+\newblock
+  \urlprefix\url{https://cran.r-project.org/web/packages/nloptr/nloptr.pdf}.
+
+\bibitem{Walwyn2015}
+Walwyn REA, Russell AM, Bryant LD et~al.
+\newblock Supported self-management for adults with type 2 diabetes and a
+  learning disability ({OK}-diabetes): study protocol for a randomised
+  controlled feasibility trial.
+\newblock \emph{Trials} 2015; 16(1).
+\newblock \doi{10.1186/s13063-015-0832-9}.
+\newblock \urlprefix\url{http://dx.doi.org/10.1186/s13063-015-0832-9}.
+
+\bibitem{OKD2013}
+House A, Ajjan R, Bryant L et~al.
+\newblock Managing with learning disability and diabetes.
+\newblock \urlprefix\url{http://www.nets.nihr.ac.uk/projects/hta/1010203}.
+\newblock Accesed 6th October 2014.
+
+\bibitem{Willan2005}
+Willan AR and Pinto EM.
+\newblock The value of information and optimal clinical trial design.
+\newblock \emph{Statistics in Medicine} 2005; 24(12): 1791--1806.
+\newblock \doi{10.1002/sim.2069}.
+\newblock \urlprefix\url{http://dx.doi.org/10.1002/sim.2069}.
 
 \bibitem{Genz2017}
 Genz A, Bretz F, Miwa T et~al.
@@ -98,5 +212,21 @@ Narasimhan B, Johnson SG, Hahn T et~al.
   2018.
 \newblock \urlprefix\url{https://CRAN.R-project.org/package=cubature}.
 \newblock R package version 2.0.3.
+
+\bibitem{Strong2015}
+Strong M, Oakley JE, Brennan A et~al.
+\newblock Estimating the expected value of sample information using the
+  probabilistic sensitivity analysis sample: a fast, nonparametric
+  regression-based method.
+\newblock \emph{Medical Decision Making} 2015; 35(5): 570--583.
+\newblock \doi{10.1177/0272989x15575286}.
+
+\bibitem{Avery2017}
+Avery KNL, Williamson PR, Gamble C et~al.
+\newblock Informing efficient randomised controlled trials: exploration of
+  challenges in developing progression criteria for internal pilot studies.
+\newblock \emph{{BMJ} Open} 2017; 7(2): e013537.
+\newblock \doi{10.1136/bmjopen-2016-013537}.
+\newblock \urlprefix\url{https://doi.org/10.1136%2Fbmjopen-2016-013537}.
 
 \end{thebibliography}

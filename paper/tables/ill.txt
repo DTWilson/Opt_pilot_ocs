@@ -1,11 +1,10 @@
 % latex table generated in R 3.4.3 by xtable 1.8-3 package
-% Thu Jun 13 11:50:17 2019
-\begin{tabular}{lrrrrrr}
+% Thu Aug 22 10:45:10 2019
+\begin{tabular}{lrrrrrrr}
   \toprule
-Problem & $n_1$ & $n_2$ & $\alpha_1$ & $1 - \beta_1$ & $\alpha_2$ & $1 - \beta_2$ \\ 
+Problem & $n_1$ & $n_2$ & $\alpha_1$ & $\beta_1$ & $\alpha_2$ & $\beta_2$ & Expected utility \\ 
   \midrule
-Unrestricted & 9 & 35 & 0.31 & 0.058 & 0.005 & 0.059 \\ 
-  No pilot test & 0 & 25 & 1.00 & 0.000 & 0.007 & 0.142 \\ 
-  Conventional main trial OCs & 10 & 21 & 0.22 & 0.071 & 0.025 & 0.099 \\ 
+Unrestricted & 41 & 146 & 0.39 & 0.110 & 0.041 & 0.132 & -0.42874 \\ 
+  No pilot test & 0 & 110 & 1.00 & 0.000 & 0.036 & 0.254 & -0.42558 \\ 
    \bottomrule
 \end{tabular}
