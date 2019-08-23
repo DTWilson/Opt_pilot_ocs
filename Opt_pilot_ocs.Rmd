@@ -137,17 +137,19 @@ exp_u_mu <- function(mu, n1, d1, n2, d2, k, rho, mu_0, sd_0, sig)
   pow1 <- 1-pnorm(d1, mu, sqrt(2*sig^2/n1))
   pow2 <- 1-pnorm(d2, mu, sqrt(2*sig^2/n2))
   
+  su <- 0 # set_up
+  
   if(rho > 0){
-    pow1*pow2*(1-exp(-rho*(k[1]*mu + k[2]*(n1+n2)))) +
-    pow1*(1-pow2)*(1-exp(-rho*(k[2]*(n1+n2) + k[3]))) +
+    pow1*pow2*(1-exp(-rho*(k[1]*mu + k[2]*(n1+n2+su)))) +
+    pow1*(1-pow2)*(1-exp(-rho*(k[2]*(n1+n2+su) + k[3]))) +
     (1-pow1)*(1-exp(-rho*(k[2]*n1 + k[3])))
   } else if(rho < 0) {
-    pow1*pow2*(-1+exp(-rho*(k[1]*mu + k[2]*(n1+n2)))) +
-    pow1*(1-pow2)*(-1+exp(-rho*(k[2]*(n1+n2) + k[3]))) +
+    pow1*pow2*(-1+exp(-rho*(k[1]*mu + k[2]*(n1+n2+su)))) +
+    pow1*(1-pow2)*(-1+exp(-rho*(k[2]*(n1+n2+su) + k[3]))) +
     (1-pow1)*(-1+exp(-rho*(k[2]*n1 + k[3])))
   } else {
-    pow1*pow2*(k[1]*mu + k[2]*(n1+n2)) +
-    pow1*(1-pow2)*(k[2]*(n1+n2) + k[3]) +
+    pow1*pow2*(k[1]*mu + k[2]*(n1+n2+su)) +
+    pow1*(1-pow2)*(k[2]*(n1+n2+su) + k[3]) +
     (1-pow1)*(k[2]*n1 + k[3])
   }
 }
@@ -366,12 +368,26 @@ rule$x <- rule$x*sqrt(2)*sd_0 + mu_0
 
 
 ptm <- proc.time()
-opt <- genoud(exp_u_joint, 4, Domains = matrix(c(0,-40,0,-40,500,10,500,10),ncol=2), 
-              print.level = 0, boundary.enforcement = 2, starting.values = c(10, 0.1, 10, 0.1),
-              k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule)
+
+x <- c(5, 0, 5, 0)
+opt <- nloptr(x, exp_u_joint,
+                lb = c(0,-40,0,-40), ub= c(1000,40,1000,40),
+                opt = list("algorithm"="NLOPT_GN_DIRECT",
+                           "xtol_rel"=1.0e-6,
+                           "maxeval"=10000),
+                k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule)
+  
+  x <- opt$solution
+  
+  opt <- nloptr(x, exp_u_joint,
+                lb = c(0,-40,0,-40), ub= c(1000,40,1000,40),
+                opt = list("algorithm"="NLOPT_LN_SBPLX",
+                           "xtol_rel"=1.0e-8,
+                           "maxeval"=5000),
+                k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule)
 proc.time() - ptm
 
-x <- opt$par
+x <- opt$solution
 
 r1 <- c(x, 
          1 - pnorm(x[2]/sqrt(2*(sig^2)/x[1])),
@@ -667,29 +683,17 @@ df2$t1 <- substr(df2$t1,1,1)
 df2$variable <- substr(df2$variable,2,2)
 names(df2) <- c("rho", "d_bar", "d_hat", "var", "trial", "val")
 
-p <- ggplot(df2[df2$var %in% c("a", "b"),], aes(rho, val, colour=trial, linetype=var)) + geom_line() +
-  theme_minimal() +
-  scale_colour_manual(values=cols) +
-  scale_y_continuous(breaks=seq(0,1,0.1)) + 
-  facet_wrap(d_bar ~ d_hat)
-  
-#transition_states(d_bar)
-#animate(p, nframes=100, fps=25)
-
-
-sub <- df2[df2$d_bar %in% unique(df2$d_bar)[c(2, 5, 9, 12, 16, 19)],]
-sub$d_bar <- round(sub$d_bar, 4)
-
-ggplot(sub[sub$var != "d",], aes(rho, val, colour=trial, linetype=var)) + 
+ggplot(df2[df2$var %in% c("a", "b"),], aes(rho, val, colour=trial, linetype=var))  + 
   geom_line() +
   theme_minimal() +
   scale_colour_manual(values=cols) +
-  #scale_y_continuous(breaks=seq(0,1,0.1)) + 
-  facet_wrap(. ~ d_bar, ncol=3) + #, labeller = labeller(d_bar = d_bar_labs)) +
-  xlab(expression(rho)) + ylab("Value") +
+  scale_y_continuous(breaks=seq(0,1,0.2)) + 
+  facet_wrap(d_bar ~ d_hat) +
+  xlab(expression(paste("Attitude to risk, ", rho))) +
+  ylab("Value") +
   labs(colour = "Trial", linetype = "Variable") +
   theme(panel.spacing = unit(2, "lines"), legend.position="bottom")
-  
+
 ggsave("./paper/figures/eval.pdf", height=16, width=18, units="cm")
 ggsave("./paper/figures/eval.eps", height=16, width=18, units="cm", device = cairo_ps())
 ```
@@ -1094,6 +1098,32 @@ to_plot$u <- pred$mean; to_plot$lo <- pred$lower95; to_plot$up <- pred$upper95
 ggplot(to_plot, aes(n, u)) + geom_ribbon(aes(ymin = lo, ymax = up), fill="grey") +
   geom_line() + geom_point(data=df)
 
+```
+
+## Figures
+
+Plot the operating charateristic cuves as contours for different pilot sample sizes, highlighting the options of a conventional type I error rate and rule-of-thumb sample size. Rules of thumb 20 and 25 come from [@Whitehead2015]; 30 is attributed to [@Browne1995] by [@Lancaster2004] and thers, but does not actually recommend it; 35 comes from [@Teare2014].
+
+```{r}
+df <- expand.grid(a = seq(0,1,0.001),
+                  n = c(25, 50))
+
+df$b <- apply(df, 1, function(x) 1 - power.t.test(n=x[2], delta=0.5, sd=1.5, sig.level = x[1], alternative = "o")$power)
+
+ggplot(df, aes(a,b, colour=as.factor(n), linetype=as.factor(n))) + geom_line() +
+  scale_color_manual(values=c("black", "grey40")) +
+  coord_fixed() +
+  xlab(expression(paste("Type I error rate, ", alpha))) +
+  ylab(expression(paste("Type II error rate, ", beta))) +
+  theme_minimal() +
+  geom_point(data=df[df$a == 0.025 & df$n == 25,], colour=cols[1], size=2) +
+  geom_point(data=df[df$a == 0.75 & df$n == 25,], colour=cols[3], size=2) +
+  geom_point(data=df[df$a == 1 & df$n == 25,], colour=cols[2], size=2) +
+  geom_point(data=df[df$a == 0.4 & df$n == 50,], colour=cols[4], size=2) +
+  labs(colour = "n", linetype = "n")
+
+ggsave("./paper/figures/ocs.pdf", height=9, width=11, units="cm")
+ggsave("./paper/figures/ocs.eps", height=9, width=11, units="cm", device = cairo_ps())
 ```
 
 ## References

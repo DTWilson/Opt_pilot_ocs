@@ -93,6 +93,12 @@ Lakens D, Adolfi FG, Albers CJ et~al.
 \newblock \emph{Nature Human Behaviour} 2018; 2(3): 168--171.
 \newblock \doi{10.1038/s41562-018-0311-x}.
 
+\bibitem{Bacchetti2019}
+Bacchetti P.
+\newblock The other arbitrary cutoff.
+\newblock \emph{The American Statistician} 2019; :
+  1--3\doi{10.1080/00031305.2019.1654920}.
+
 \bibitem{Raiffa1961}
 Raiffa H and Schlaifer R.
 \newblock \emph{Applied Statistical Decision Theory}.
@@ -212,6 +218,14 @@ Narasimhan B, Johnson SG, Hahn T et~al.
   2018.
 \newblock \urlprefix\url{https://CRAN.R-project.org/package=cubature}.
 \newblock R package version 2.0.3.
+
+\bibitem{Pearce2018}
+Pearce M, Hee SW, Madan J et~al.
+\newblock Value of information methods to design a clinical trial in a small
+  population to optimise a health economic utility function.
+\newblock \emph{BMC Medical Research Methodology} 2018; 18(1): 20.
+\newblock \doi{10.1186/s12874-018-0475-0}.
+\newblock \urlprefix\url{https://doi.org/10.1186/s12874-018-0475-0}.
 
 \bibitem{Strong2015}
 Strong M, Oakley JE, Brennan A et~al.
