@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6840 64-bit) (preloaded format=pdflatex 2019.3.21)  23 AUG 2019 10:35
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6840 64-bit) (preloaded format=pdflatex 2019.3.21)  13 NOV 2019 14:21
 entering extended mode
 **./Opt_pilot_ocs.tex
 (Opt_pilot_ocs.tex
@@ -314,18 +314,18 @@ Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 (Opt_pilot_ocs.aux)
 \openout1 = `Opt_pilot_ocs.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
 
 (C:\Users\meddwilb\AppData\Roaming\MiKTeX\2.9\tex\context\base\mkii\supp-pdf.mk
 ii
@@ -428,41 +428,34 @@ G,.JBIG2,.JB2,.eps]
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: float package is loaded.
 Package caption Info: End \AtBeginDocument code.
-LaTeX Font Info:    Try loading font information for U+lasy on input line 39.
+LaTeX Font Info:    Try loading font information for U+lasy on input line 43.
 ("C:\Program Files\MiKTeX 2.9\tex\latex\base\ulasy.fd"
 File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
 )
-LaTeX Font Info:    Try loading font information for U+msa on input line 39.
+LaTeX Font Info:    Try loading font information for U+msa on input line 43.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 39.
+LaTeX Font Info:    Try loading font information for U+msb on input line 43.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Warning: Font shape `OT1/cmss/m/n' in size <18> not available
-(Font)              size <17.28> substituted on input line 43.
+(Font)              size <17.28> substituted on input line 47.
 LaTeX Font Warning: Font shape `OT1/cmss/bx/n' in size <18> not available
-(Font)              size <17.28> substituted on input line 43.
-LaTeX Font Info:    Try loading font information for OMS+cmss on input line 43.
+(Font)              size <17.28> substituted on input line 47.
+LaTeX Font Info:    Try loading font information for OMS+cmss on input line 47.
 
-LaTeX Font Info:    No file OMScmss.fd. on input line 43.
+LaTeX Font Info:    No file OMScmss.fd. on input line 47.
 LaTeX Font Warning: Font shape `OMS/cmss/m/n' undefined
-(Font)              using `OMS/cmsy/m/n' instead on input line 43.
+(Font)              using `OMS/cmsy/m/n' instead on input line 47.
 LaTeX Font Warning: Font shape `OT1/cmss/m/it' in size <7> not available
-(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 48.
+(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 54.
  [1
 
 {C:/Users/meddwilb/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 51.
-
-("C:\Program Files\MiKTeX 2.9\tex\latex\base\omscmr.fd"
-File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
-)
-LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <7> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 51.
 Package epstopdf Info: Source file: <./figures/ocs.eps>
 (epstopdf)                    date: 2019-08-23 10:31:29
 (epstopdf)                    size: 38345 bytes
@@ -471,118 +464,110 @@ Package epstopdf Info: Source file: <./figures/ocs.eps>
 (epstopdf)                    size: 18742 bytes
 (epstopdf)             Command: <epstopdf --outfile=./figures/ocs-eps-converted
 -to.pdf ./figures/ocs.eps>
-(epstopdf)             \includegraphics on input line 55.
+(epstopdf)             \includegraphics on input line 62.
 Package epstopdf Info: Output file is already uptodate.
 
 
 pdfTeX warning: pdflatex (file ./figures/ocs-eps-converted-to.pdf): PDF inclusi
 on: found PDF version <1.7>, but at most version <1.5> allowed
-<./figures/ocs-eps-converted-to.pdf, id=11, 313.17pt x 255.95625pt>
+<./figures/ocs-eps-converted-to.pdf, id=13, 313.17pt x 255.95625pt>
 File: ./figures/ocs-eps-converted-to.pdf Graphic file (type pdf)
 <use ./figures/ocs-eps-converted-to.pdf>
 Package pdftex.def Info: ./figures/ocs-eps-converted-to.pdf  used on input line
- 55.
+ 62.
 (pdftex.def)             Requested size: 250.53633pt x 204.76526pt.
-
-Overfull \vbox (2.84482pt too high) has occurred while \output is active []
-
 LaTeX Font Warning: Font shape `OT1/cmss/m/it' in size <10> not available
-(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 62.
-
-[2]
-
-Package natbib Warning: Citation `Pearce2018 ...' on page 3 undefined on input 
-line 63.
-
-[3 <./figures/ocs-eps-converted-to.pdf>]
+(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 72.
+[2] [3 <./figures/ocs-eps-converted-to.pdf>]
 LaTeX Font Warning: Font shape `OT1/cmss/m/it' in size <12> not available
-(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 89.
- [4] [5] [6] [7] [8] (tables/ill.txt)
-<./figures/sens_p.pdf, id=56, 397.485pt x 255.95625pt>
+(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 91.
+ [4] [5] [6] [7] [8]
+(tables/ill.txt) [9]
+<./figures/sens_p.pdf, id=60, 397.485pt x 255.95625pt>
 File: ./figures/sens_p.pdf Graphic file (type pdf)
 <use ./figures/sens_p.pdf>
-Package pdftex.def Info: ./figures/sens_p.pdf  used on input line 248.
+Package pdftex.def Info: ./figures/sens_p.pdf  used on input line 270.
 (pdftex.def)             Requested size: 317.98842pt x 204.76526pt.
-
-[9]
-<./figures/sens_u.pdf, id=63, 397.485pt x 255.95625pt>
+ [10 <./figures/sens_p.pdf>]
+<./figures/sens_u.pdf, id=69, 397.485pt x 255.95625pt>
 File: ./figures/sens_u.pdf Graphic file (type pdf)
 <use ./figures/sens_u.pdf>
-Package pdftex.def Info: ./figures/sens_u.pdf  used on input line 258.
+Package pdftex.def Info: ./figures/sens_u.pdf  used on input line 280.
 (pdftex.def)             Requested size: 317.98842pt x 204.76526pt.
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [10 <./figures/sens_p.pdf>]
-<./Figures/eval.pdf, id=72, 511.9125pt x 454.69875pt>
-File: ./Figures/eval.pdf Graphic file (type pdf)
-<use ./Figures/eval.pdf>
-Package pdftex.def Info: ./Figures/eval.pdf  used on input line 272.
+ [11 <./figures/sens_u.pdf>]
+<./Figures/eval_np30.pdf, id=79, 511.9125pt x 454.69875pt>
+File: ./Figures/eval_np30.pdf Graphic file (type pdf)
+<use ./Figures/eval_np30.pdf>
+Package pdftex.def Info: ./Figures/eval_np30.pdf  used on input line 298.
+(pdftex.def)             Requested size: 409.53056pt x 363.75949pt.
+<./Figures/eval_unrest.pdf, id=80, 511.9125pt x 454.69875pt>
+File: ./Figures/eval_unrest.pdf Graphic file (type pdf)
+<use ./Figures/eval_unrest.pdf>
+Package pdftex.def Info: ./Figures/eval_unrest.pdf  used on input line 311.
 (pdftex.def)             Requested size: 409.53056pt x 363.75949pt.
 
+[12] [13 <./Figures/eval_np30.pdf>] [14 <./Figures/eval_unrest.pdf>]
+(tables/ill_int.txt) [15] [16] [17] (Opt_pilot_ocs.bbl [18]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [11 <./figures/sens_u.pdf>] [12 <./Figures/eval.pdf>] [13] [14] (Opt_pilot_ocs
-.bbl
-[15] [16]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [17])
-[18]
-Overfull \hbox (7.05524pt too wide) detected at line 467
+ [19])
+[20] [21]
+Overfull \hbox (7.05524pt too wide) detected at line 493
 [][]
  []
 
 
-Overfull \hbox (24.86913pt too wide) detected at line 485
+Overfull \hbox (24.86913pt too wide) detected at line 511
 []
  []
 
-[19]
-
-Package natbib Warning: There were undefined citations.
-
-[20] (Opt_pilot_ocs.aux)
+[22] [23] (Opt_pilot_ocs.aux)
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 0.72pt have occurred.
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
  ) 
 Here is how much of TeX's memory you used:
- 5745 strings out of 492970
- 83787 string characters out of 3135846
- 165199 words of memory out of 3000000
- 9459 multiletter control sequences out of 15000+200000
- 19042 words of font info for 75 fonts, out of 3000000 for 9000
+ 5761 strings out of 492970
+ 84211 string characters out of 3135846
+ 164361 words of memory out of 3000000
+ 9474 multiletter control sequences out of 15000+200000
+ 19040 words of font info for 75 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 43i,16n,40p,1790b,463s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx7.pfb><C:/Pro
-gram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Fil
-es/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTe
-X 2.9/fonts/type1/public/amsfonts/cm/cmmi5.pfb><C:/Program Files/MiKTeX 2.9/fon
-ts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/
-public/amsfonts/cm/cmmi9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/am
-sfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm
-/cmr5.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr6.pfb>
-<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Progra
-m Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files/Mi
-KTeX 2.9/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Program Files/MiKTeX 2.9/f
-onts/type1/public/amsfonts/cm/cmss10.pfb><C:/Program Files/MiKTeX 2.9/fonts/typ
-e1/public/amsfonts/cm/cmss8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public
-/amsfonts/cm/cmss9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts
-/cm/cmssbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cm
-ssi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmssi12.p
-fb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmssi8.pfb><C:/P
-rogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program F
-iles/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Program Files/MiKT
-eX 2.9/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files/MiKTeX 2.9/fo
-nts/type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type
-1/public/amsfonts/cm/cmti7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/
-amsfonts/cm/cmti9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/
-cm/cmtt9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/symbols/m
-sbm10.pfb>
-Output written on Opt_pilot_ocs.pdf (20 pages, 463679 bytes).
+ 43i,16n,40p,1289b,440s stack positions out of 5000i,500n,10000p,200000b,50000s
+<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Pr
+ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Fi
+les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKT
+eX 2.9/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Program Files/MiKTeX 2.9/f
+onts/type1/public/amsfonts/cm/cmmi5.pfb><C:/Program Files/MiKTeX 2.9/fonts/type
+1/public/amsfonts/cm/cmmi6.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/
+amsfonts/cm/cmmi7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/
+cm/cmmi9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.
+pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/P
+rogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr5.pfb><C:/Program Fil
+es/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Program Files/MiKTeX 
+2.9/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Program Files/MiKTeX 2.9/fonts/
+type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/publ
+ic/amsfonts/cm/cmr9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfont
+s/cm/cmss10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cms
+s8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss9.pfb><C
+:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmssbx10.pfb><C:/Prog
+ram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmssi10.pfb><C:/Program Fil
+es/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmssi12.pfb><C:/Program Files/MiKT
+eX 2.9/fonts/type1/public/amsfonts/cm/cmssi8.pfb><C:/Program Files/MiKTeX 2.9/f
+onts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/typ
+e1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public
+/amsfonts/cm/cmsy9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts
+/cm/cmti10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti
+7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti9.pfb><C:
+/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt9.pfb><C:/Program 
+Files/MiKTeX 2.9/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on Opt_pilot_ocs.pdf (23 pages, 536426 bytes).
 PDF statistics:
- 202 PDF objects out of 1000 (max. 8388607)
+ 230 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 21 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 26 words of extra memory for PDF output out of 10000 (max. 10000000)
 

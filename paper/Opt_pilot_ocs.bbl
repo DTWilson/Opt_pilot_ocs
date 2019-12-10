@@ -22,6 +22,20 @@ Craig P, Dieppe P, Macintyre S et~al.
 \newblock \emph{BMJ: British Medical Journal} 2008; 337.
 \newblock \doi{10.1136/bmj.a1655}.
 
+\bibitem{Thabane2010}
+Thabane L, Ma J, Chu R et~al.
+\newblock A tutorial on pilot studies: the what, why and how.
+\newblock \emph{BMC Medical Research Methodology} 2010; 10(1): 1.
+\newblock \doi{10.1186/1471-2288-10-1}.
+\newblock \urlprefix\url{http://www.biomedcentral.com/1471-2288/10/1}.
+
+\bibitem{Eldridge2016a}
+Eldridge SM, Chan CL, Campbell MJ et~al.
+\newblock {CONSORT} 2010~{s}tatement: extension to randomised pilot and
+  feasibility trials.
+\newblock \emph{{BMJ}} 2016; : i5239\doi{10.1136/bmj.i5239}.
+\newblock \urlprefix\url{http://dx.doi.org/10.1136/bmj.i5239}.
+
 \bibitem{Lancaster2004}
 Lancaster GA, Dodd S and Williamson PR.
 \newblock Design and analysis of pilot studies: recommendations for good
@@ -39,28 +53,19 @@ Arain M, Campbell M, Cooper C et~al.
 \newblock \doi{10.1186/1471-2288-10-67}.
 \newblock \urlprefix\url{http://www.biomedcentral.com/1471-2288/10/67}.
 
-\bibitem{Thabane2010}
-Thabane L, Ma J, Chu R et~al.
-\newblock A tutorial on pilot studies: the what, why and how.
-\newblock \emph{BMC Medical Research Methodology} 2010; 10(1): 1.
-\newblock \doi{10.1186/1471-2288-10-1}.
-\newblock \urlprefix\url{http://www.biomedcentral.com/1471-2288/10/1}.
+\bibitem{Westlund2016}
+Westlund E and Stuart EA.
+\newblock The nonuse, misuse, and proper use of pilot studies in experimental
+  evaluation research.
+\newblock \emph{American Journal of Evaluation} 2016; 38(2): 246--261.
+\newblock \doi{10.1177/1098214016651489}.
 
-\bibitem{Eldridge2016a}
-Eldridge SM, Chan CL, Campbell MJ et~al.
-\newblock {CONSORT} 2010~{s}tatement: extension to randomised pilot and
-  feasibility trials.
-\newblock \emph{{BMJ}} 2016; : i5239\doi{10.1136/bmj.i5239}.
-\newblock \urlprefix\url{http://dx.doi.org/10.1136/bmj.i5239}.
-
-\bibitem{Wilson2015}
-Wilson DT, Walwyn RE, Brown J et~al.
-\newblock Statistical challenges in assessing potential efficacy of complex
-  interventions in pilot or feasibility studies.
-\newblock \emph{Statistical Methods in Medical Research} 2015; 25(3):
-  997--1009.
-\newblock \doi{10.1177/0962280215589507}.
-\newblock \urlprefix\url{http://dx.doi.org/10.1177/0962280215589507}.
+\bibitem{Sim2019}
+Sim J.
+\newblock Should treatment effects be estimated in pilot and feasibility
+  studies?
+\newblock \emph{Pilot and Feasibility Studies} 2019; 5(1).
+\newblock \doi{10.1186/s40814-019-0493-7}.
 
 \bibitem{Teare2014}
 Teare M, Dimairo M, Shephard N et~al.
@@ -69,14 +74,6 @@ Teare M, Dimairo M, Shephard N et~al.
 \newblock \emph{Trials} 2014; 15(1): 264.
 \newblock \doi{10.1186/1745-6215-15-264}.
 \newblock \urlprefix\url{http://www.trialsjournal.com/content/15/1/264}.
-
-\bibitem{Lee2014}
-Lee E, Whitehead A, Jacques R et~al.
-\newblock The statistical interpretation of pilot trials: should significance
-  thresholds be reconsidered?
-\newblock \emph{BMC Medical Research Methodology} 2014; 14(1): 41.
-\newblock \doi{10.1186/1471-2288-14-41}.
-\newblock \urlprefix\url{http://www.biomedcentral.com/1471-2288/14/41}.
 
 \bibitem{Cocks2013}
 Cocks K and Torgerson DJ.
@@ -87,17 +84,13 @@ Cocks K and Torgerson DJ.
 \newblock
   \urlprefix\url{http://www.sciencedirect.com/science/article/pii/S0895435612002740}.
 
-\bibitem{Lakens2018}
-Lakens D, Adolfi FG, Albers CJ et~al.
-\newblock Justify your alpha.
-\newblock \emph{Nature Human Behaviour} 2018; 2(3): 168--171.
-\newblock \doi{10.1038/s41562-018-0311-x}.
-
-\bibitem{Bacchetti2019}
-Bacchetti P.
-\newblock The other arbitrary cutoff.
-\newblock \emph{The American Statistician} 2019; :
-  1--3\doi{10.1080/00031305.2019.1654920}.
+\bibitem{Lee2014}
+Lee E, Whitehead A, Jacques R et~al.
+\newblock The statistical interpretation of pilot trials: should significance
+  thresholds be reconsidered?
+\newblock \emph{BMC Medical Research Methodology} 2014; 14(1): 41.
+\newblock \doi{10.1186/1471-2288-14-41}.
+\newblock \urlprefix\url{http://www.biomedcentral.com/1471-2288/14/41}.
 
 \bibitem{Raiffa1961}
 Raiffa H and Schlaifer R.
@@ -137,27 +130,13 @@ Joseph L and Wolfson DB.
 \newblock \doi{10.1111/1467-9884.00070}.
 \newblock \urlprefix\url{http://dx.doi.org/10.1111/1467-9884.00070}.
 
-\bibitem{Gittins2000a}
-Gittins J and Pezeshk H.
-\newblock A behavioral bayes method for determining the size of a clinical
-  trial.
-\newblock \emph{Drug Information Journal} 2000; 34(2): 355--363.
-\newblock \doi{10.1177/009286150003400204}.
-\newblock \urlprefix\url{http://dij.sagepub.com/content/34/2/355.abstract}.
-\newblock \eprint{http://dij.sagepub.com/content/34/2/355.full.pdf+html}.
-
-\bibitem{Kikuchi2009}
-Kikuchi T and Gittins J.
-\newblock A behavioral bayes method to determine the sample size of a clinical
-  trial considering efficacy and safety.
-\newblock \emph{Statist Med} 2009; 28(18): 2293--2306.
-\newblock \urlprefix\url{http://dx.doi.org/10.1002/sim.3630}.
-
-\bibitem{French2000}
-French S and Insua DR.
-\newblock \emph{Statistical Decision Theory}.
-\newblock Number~9 in Kendall's Library of Statistics, Oxford University Press,
-  2000.
+\bibitem{Pearce2018}
+Pearce M, Hee SW, Madan J et~al.
+\newblock Value of information methods to design a clinical trial in a small
+  population to optimise a health economic utility function.
+\newblock \emph{BMC Medical Research Methodology} 2018; 18(1): 20.
+\newblock \doi{10.1186/s12874-018-0475-0}.
+\newblock \urlprefix\url{https://doi.org/10.1186/s12874-018-0475-0}.
 
 \bibitem{Blocker2018}
 Blocker AW.
@@ -206,6 +185,14 @@ Willan AR and Pinto EM.
 \newblock \doi{10.1002/sim.2069}.
 \newblock \urlprefix\url{http://dx.doi.org/10.1002/sim.2069}.
 
+\bibitem{Stallard2012}
+Stallard N.
+\newblock Optimal sample sizes for phase {II} clinical trials and pilot
+  studies.
+\newblock \emph{Statistics in Medicine} 2012; 31(11-12): 1031--1042.
+\newblock \doi{10.1002/sim.4357}.
+\newblock \urlprefix\url{http://dx.doi.org/10.1002/sim.4357}.
+
 \bibitem{Genz2017}
 Genz A, Bretz F, Miwa T et~al.
 \newblock \emph{{mvtnorm}: Multivariate Normal and t Distributions}, 2017.
@@ -219,13 +206,39 @@ Narasimhan B, Johnson SG, Hahn T et~al.
 \newblock \urlprefix\url{https://CRAN.R-project.org/package=cubature}.
 \newblock R package version 2.0.3.
 
-\bibitem{Pearce2018}
-Pearce M, Hee SW, Madan J et~al.
-\newblock Value of information methods to design a clinical trial in a small
-  population to optimise a health economic utility function.
-\newblock \emph{BMC Medical Research Methodology} 2018; 18(1): 20.
-\newblock \doi{10.1186/s12874-018-0475-0}.
-\newblock \urlprefix\url{https://doi.org/10.1186/s12874-018-0475-0}.
+\bibitem{Gittins2000a}
+Gittins J and Pezeshk H.
+\newblock A behavioral bayes method for determining the size of a clinical
+  trial.
+\newblock \emph{Drug Information Journal} 2000; 34(2): 355--363.
+\newblock \doi{10.1177/009286150003400204}.
+\newblock \urlprefix\url{http://dij.sagepub.com/content/34/2/355.abstract}.
+\newblock \eprint{http://dij.sagepub.com/content/34/2/355.full.pdf+html}.
+
+\bibitem{Kikuchi2009}
+Kikuchi T and Gittins J.
+\newblock A behavioral bayes method to determine the sample size of a clinical
+  trial considering efficacy and safety.
+\newblock \emph{Statist Med} 2009; 28(18): 2293--2306.
+\newblock \urlprefix\url{http://dx.doi.org/10.1002/sim.3630}.
+
+\bibitem{Hee2012}
+Hee SW and Stallard N.
+\newblock Designing a series of decision-theoretic phase {II} trials in a small
+  population.
+\newblock \emph{Statistics in Medicine} 2012; 31(30): 4337--4351.
+\newblock \doi{10.1002/sim.5573}.
+\newblock \urlprefix\url{http://dx.doi.org/10.1002/sim.5573}.
+
+\bibitem{Dallow2018}
+Dallow N, Best N and Montague TH.
+\newblock Better decision making in drug development through adoption of formal
+  prior elicitation.
+\newblock \emph{Pharmaceutical Statistics} 2018; 0(0).
+\newblock \doi{10.1002/pst.1854}.
+\newblock
+  \urlprefix\url{https://onlinelibrary.wiley.com/doi/abs/10.1002/pst.1854}.
+\newblock \eprint{https://onlinelibrary.wiley.com/doi/pdf/10.1002/pst.1854}.
 
 \bibitem{Strong2015}
 Strong M, Oakley JE, Brennan A et~al.
@@ -235,6 +248,13 @@ Strong M, Oakley JE, Brennan A et~al.
 \newblock \emph{Medical Decision Making} 2015; 35(5): 570--583.
 \newblock \doi{10.1177/0272989x15575286}.
 
+\bibitem{Heath2019}
+Heath A, Manolopoulou I and Baio G.
+\newblock Estimating the expected value of sample information across different
+  sample sizes using moment matching and nonlinear regression.
+\newblock \emph{Medical Decision Making} 2019; 39(4): 346--358.
+\newblock \doi{10.1177/0272989x19837983}.
+
 \bibitem{Avery2017}
 Avery KNL, Williamson PR, Gamble C et~al.
 \newblock Informing efficient randomised controlled trials: exploration of
@@ -242,5 +262,35 @@ Avery KNL, Williamson PR, Gamble C et~al.
 \newblock \emph{{BMJ} Open} 2017; 7(2): e013537.
 \newblock \doi{10.1136/bmjopen-2016-013537}.
 \newblock \urlprefix\url{https://doi.org/10.1136%2Fbmjopen-2016-013537}.
+
+\bibitem{Benjamin2017}
+Benjamin DJ, Berger JO, Johannesson M et~al.
+\newblock Redefine statistical significance.
+\newblock \emph{Nature Human Behaviour} 2017; 2(1): 6--10.
+\newblock \doi{10.1038/s41562-017-0189-z}.
+
+\bibitem{Lakens2018}
+Lakens D, Adolfi FG, Albers CJ et~al.
+\newblock Justify your alpha.
+\newblock \emph{Nature Human Behaviour} 2018; 2(3): 168--171.
+\newblock \doi{10.1038/s41562-018-0311-x}.
+
+\bibitem{Amrhein2017}
+Amrhein V and Greenland S.
+\newblock Remove, rather than redefine, statistical significance.
+\newblock \emph{Nature Human Behaviour} 2017; 2(1): 4--4.
+\newblock \doi{10.1038/s41562-017-0224-0}.
+
+\bibitem{Amrhein2019}
+Amrhein V, Greenland S and McShane B.
+\newblock Scientists rise up against statistical significance.
+\newblock \emph{Nature} 2019; 567(7748): 305--307.
+\newblock \doi{10.1038/d41586-019-00857-9}.
+
+\bibitem{Bacchetti2019}
+Bacchetti P.
+\newblock The other arbitrary cutoff.
+\newblock \emph{The American Statistician} 2019; :
+  1--3\doi{10.1080/00031305.2019.1654920}.
 
 \end{thebibliography}

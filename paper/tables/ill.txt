@@ -1,10 +1,10 @@
 % latex table generated in R 3.4.3 by xtable 1.8-3 package
-% Thu Aug 22 10:45:10 2019
+% Thu Sep 19 11:25:07 2019
 \begin{tabular}{lrrrrrrr}
   \toprule
 Problem & $n_1$ & $n_2$ & $\alpha_1$ & $\beta_1$ & $\alpha_2$ & $\beta_2$ & Expected utility \\ 
   \midrule
 Unrestricted & 41 & 146 & 0.39 & 0.110 & 0.041 & 0.132 & -0.42874 \\ 
-  No pilot test & 0 & 110 & 1.00 & 0.000 & 0.036 & 0.254 & -0.42558 \\ 
+  No pilot test & 30 & 110 & 1.00 & 0.000 & 0.036 & 0.254 & -0.42292 \\ 
    \bottomrule
 \end{tabular}
