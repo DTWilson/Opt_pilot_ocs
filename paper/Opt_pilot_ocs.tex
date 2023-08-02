@@ -211,7 +211,9 @@ Optimal programme designs can be found by solving the optimisation problem
 & d_i \in \mathbb{R}, i=1,2. \nonumber
 \end{alignat}
 
-To solve this problem we first apply the global optimisation algorithm DIRECT \cite{Jones1993}, and then use the resulting solution as the starting point for the local optimisation algorithm Subplex  \cite{Rowan1990}. Both of these algorithms are implemented in R via the package `nloptr' \cite{Ypma2018}. Full details are provided in the supplementary material.
+To solve this problem we use the gradient-assisted local optimisation method of \cite{Byrd1995} as implemented in the R \cite{RCT2019} package `optimx' \cite{Nash2011}. Full details are provided in the supplementary material.
+
+%first apply the global optimisation algorithm DIRECT \cite{Jones1993}, and then use the resulting solution as the starting point for the local optimisation algorithm Subplex  \cite{Rowan1990}. Both of these algorithms are implemented in R via the package `nloptr' \cite{Ypma2018}. Full details are provided in the supplementary material.
 
 %We use a standard particle swarm algorithm \cite{Clerc2012} as implemented in the R package `pso' \cite{Bendtsen2012}. Fast and reliable optimisation is obtained by supplying the partial derivatives of the expected utility function, as described in the appendix.
 
@@ -324,6 +326,10 @@ The trends of how optimal error rates and sample sizes vary with the utility fun
 
 \section{Extensions}\label{sec:extensions}
 
+\subsection{Main trial}
+
+In a sense a simplification, we should note that the method applies equally well to the case of a single confirmatory trial. We could place this in the context of other work talking about balancing error rates, e.g. \cite{Grieve2015, Walley2021} and references therein. The extension component comes from the closed form solution for expected utility (for the known variance case at least), which we can put in the appendix. Could apply to an example in the SM.
+
 \subsection{Non-inferiority}
 
 Although we have focussed on superiority trials, the decision-theoretic approach extends naturally to the non-inferiority setting. In a non-inferiority trial we are interested in testing whether or not the new intervention is not worse than the control by some pre-specified amount (the non-inferiority margin). The proposed method encompasses this setting by allowing for negative choices of the parameter $\hat{d}$, which denotes the amount of treatment difference we would consider equivalent to the costs of adopting the new treatment. In the non-inferiority setting the new treatment will be considered cheaper (in some sense, not necessarily monetary) than the control, leading to a negative $\hat{d}$.
@@ -371,6 +377,8 @@ Suppose we have a binary primary endpoint, with probability of occurrence of $\t
 
 We can extend our approach to this scenario by returning to equation \ref{eqn:joint_cond_util} and noting that, now conditioning on the pair of probabilities $(\tau_C, \tau_I)$, the probabilities of test success/failure at each stage can still be easily calculated. Now, rather than integrating the conditional expectation over a single normal prior density, we must integrate over the two independent beta distributions for $\tau_C$ and $\tau_I$. We can use general numerical integration methods such as the adaptive procedure implemented in the R package `cubature' \cite{Narasimhan2018} to estimate these integrals, although these will be slower than the Gauss-Hermite method used in the continuous case.
 
+% This might be better in the discussion, where we can just note that the basic strategy can be easily applied to other models but that one of the difficulties will be in doing the integration. The other will be in specifying the utility, but we can't say much about that in general other than to use the same strategy of attributes - value - utility.
+
 \subsection{Unknown variance}
 
 When the variance of the primary outcome is unknown but still assumed to be common across arms, the tests at each stage of the design will compare $t$-statistics
@@ -378,6 +386,8 @@ $$
 t_i = \frac{x_i}{\sqrt{2\hat{\sigma_i}^2 / n_i}}
 $$
 for stage $i = 1,2$, where $\hat{\sigma_i}^2$ are estimates of the variance at each stage. Conditional on $\mu, \sigma^2$, these $t$-statistics will follow non-central $t$-distributions with $2n_i - 2$ degrees of freedom and non-centrality parameter $\mu/\sqrt{2\sigma^2 / n_i}$. The probability of test success/failure at each stage in equation \ref{eqn:joint_cond_util} (now conditioning on $\mu$ and $\sigma^2$) can then be readily calculated. Given this conditional utility, we can proceed as before by numerically integrating over the prior distribution, now a joint prior $p(\mu, \sigma^2)$.
+
+% We should implement this, even if only in the SM for a specific case, to make sure it is computationaly tractable. Should look at using nested quadrature over the gamma and normal dists. If this is fast and robust, it is worth saying so here.
 
 %\subsection{Surrogate endpoints} We have assumed throughout that the endpoints at both stages are the same. Say we want to relax this, e.g. have the same continuous endpoint but measured earlier at the pilot stage. Closely related to the sensitivity analysis we do in the illustration, where we considered a positive bias in the pilot effect (but with the same endpoint at the same time). Key thing is that we need to elicit a bivariate distribution for the effect at both stages and the correlation between them. If we can do this, we can still use quadrature and everything will follow.
 
@@ -535,7 +545,7 @@ cov(x_1, x_t) &= \frac{n_1}{n_1 + n_2} \left(\frac{2\sigma^2}{n_1} + \mu^2\right
 &= \frac{2\sigma^2}{n_1 + n_2} .
 \end{align*}
 
-\end{document}
+
 
 
 \subsection*{Partial derivatives of expected utility}
@@ -557,3 +567,5 @@ $$
 \frac{d}{dd_i} g(n_i,d_i) = \frac{d}{dd_i} \left[1 - \Phi \left(\frac{d_i-\mu}{\sqrt{2\sigma^2/n_i}} \right)\right] = -\phi\left(\frac{d_i-\mu}{\sqrt{2\sigma^2/n_i}} \right) \frac{1}{\sqrt{2\sigma^2/n_i}},
 $$
 we can calculate the partial derivatives of the integrand in equation \ref{eqn:exp_util}. Given the quadrature approximation being used, the partial derivatives of the expected utility can then be calculated as the weighted sum of derivatives at the quadrature points. Full details can be found in the supplementary material.
+
+\end{document}

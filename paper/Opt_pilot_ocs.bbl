@@ -145,23 +145,25 @@ Blocker AW.
 \newblock \urlprefix\url{https://CRAN.R-project.org/package=fastGHQuad}.
 \newblock R package version 1.0.
 
-\bibitem{Jones1993}
-Jones DR, Perttunen CD and Stuckman BE.
-\newblock Lipschitzian optimization without the lipschitz constant.
-\newblock \emph{Journal of Optimization Theory and Applications} 1993; 79(1):
-  157--181.
-\newblock \doi{10.1007/bf00941892}.
+\bibitem{Byrd1995}
+Byrd RH, Lu P, Nocedal J et~al.
+\newblock A limited memory algorithm for bound constrained optimization.
+\newblock \emph{{SIAM} Journal on Scientific Computing} 1995; 16(5):
+  1190--1208.
+\newblock \doi{10.1137/0916069}.
 
-\bibitem{Rowan1990}
-Rowan T.
-\newblock \emph{Functional Stability Analysis of Numerical Algorithms}.
-\newblock PhD Thesis, 1990.
+\bibitem{RCT2019}
+{R Core Team}.
+\newblock \emph{R: A Language and Environment for Statistical Computing}.
+\newblock R Foundation for Statistical Computing, Vienna, Austria, 2019.
+\newblock \urlprefix\url{https://www.R-project.org/}.
 
-\bibitem{Ypma2018}
-Ypma J, Borchers HW and Eddelbuettel D.
-\newblock The nlopt nonlinear-optimization package, 2018.
-\newblock
-  \urlprefix\url{https://cran.r-project.org/web/packages/nloptr/nloptr.pdf}.
+\bibitem{Nash2011}
+Nash JC and Varadhan R.
+\newblock Unifying optimization algorithms to aid software system
+  users:{optimxforR}.
+\newblock \emph{Journal of Statistical Software} 2011; 43(9).
+\newblock \doi{10.18637/jss.v043.i09}.
 
 \bibitem{Walwyn2015}
 Walwyn REA, Russell AM, Bryant LD et~al.
@@ -230,16 +232,6 @@ Hee SW and Stallard N.
 \newblock \doi{10.1002/sim.5573}.
 \newblock \urlprefix\url{http://dx.doi.org/10.1002/sim.5573}.
 
-\bibitem{Dallow2018}
-Dallow N, Best N and Montague TH.
-\newblock Better decision making in drug development through adoption of formal
-  prior elicitation.
-\newblock \emph{Pharmaceutical Statistics} 2018; 0(0).
-\newblock \doi{10.1002/pst.1854}.
-\newblock
-  \urlprefix\url{https://onlinelibrary.wiley.com/doi/abs/10.1002/pst.1854}.
-\newblock \eprint{https://onlinelibrary.wiley.com/doi/pdf/10.1002/pst.1854}.
-
 \bibitem{Strong2015}
 Strong M, Oakley JE, Brennan A et~al.
 \newblock Estimating the expected value of sample information using the
@@ -269,17 +261,17 @@ Benjamin DJ, Berger JO, Johannesson M et~al.
 \newblock \emph{Nature Human Behaviour} 2017; 2(1): 6--10.
 \newblock \doi{10.1038/s41562-017-0189-z}.
 
-\bibitem{Lakens2018}
-Lakens D, Adolfi FG, Albers CJ et~al.
-\newblock Justify your alpha.
-\newblock \emph{Nature Human Behaviour} 2018; 2(3): 168--171.
-\newblock \doi{10.1038/s41562-018-0311-x}.
-
 \bibitem{Amrhein2017}
 Amrhein V and Greenland S.
 \newblock Remove, rather than redefine, statistical significance.
 \newblock \emph{Nature Human Behaviour} 2017; 2(1): 4--4.
 \newblock \doi{10.1038/s41562-017-0224-0}.
+
+\bibitem{Lakens2018}
+Lakens D, Adolfi FG, Albers CJ et~al.
+\newblock Justify your alpha.
+\newblock \emph{Nature Human Behaviour} 2018; 2(3): 168--171.
+\newblock \doi{10.1038/s41562-018-0311-x}.
 
 \bibitem{Amrhein2019}
 Amrhein V, Greenland S and McShane B.

@@ -274,7 +274,7 @@ f_dd2 <- function(n1,d1,n2,d2,mu,sig,k,rho)
 
 # Check against numeric gradients
 n1 <- 10; d1 <- 0.1; n2 <- 15; d2 <- 0
-mu <- 0.1; rho <- 1
+mu <- 0.1; rho <- -1
 
 grad(function(nn) exp_u_mu(mu, nn, d1, n2, d2, k, rho, mu_0, sd_0, sig), n1)
 f_dn1(n1,d1,n2,d2,mu,sig,k,rho)
@@ -297,7 +297,7 @@ exp_u_joint_grad <- function(x, k, rho, mu_0, sd_0, sig, rule, pen=FALSE)
   g_d1 <- ghQuad(f=f_dd1, rule=rule, n1=n1, d1=d1, n2=n2, d2=d2,k=k, rho=rho, sig=sig)/sqrt(pi)
   g_n2 <- ghQuad(f=f_dn2, rule=rule, n1=n1, d1=d1, n2=n2, d2=d2,k=k, rho=rho, sig=sig)/sqrt(pi)
   g_d2 <- ghQuad(f=f_dd2, rule=rule, n1=n1, d1=d1, n2=n2, d2=d2,k=k, rho=rho, sig=sig)/sqrt(pi)
-  return(-c(g_n1, g_d1, g_n2, g_d2))
+  return(c(g_n1, g_d1, g_n2, g_d2)*(-1*(rho > 0) + 1*(rho < 0)))
 }
 
 grad(exp_u_joint, c(n1,d1,n2,d2), k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule)
@@ -379,6 +379,10 @@ k <- get_ks(d_bar, d_hat, n=50)
 rule <- gaussHermiteData(100)
 rule$x <- rule$x*sqrt(2)*sd_0 + mu_0
 
+x <- c(100, 0, 100, 0)
+opt <- optim(x, exp_u_joint, gr = exp_u_joint_grad,
+             lower = c(30,-40,0,-40), upper = c(1000,40,1000,40), method = "L-BFGS-B",
+             k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule, pen=T)
 
 ptm <- proc.time()
 
@@ -726,7 +730,7 @@ We can optimise over the design parameters $n_1, d_1, n_2, d_2$ (which are equiv
 ```{r, eval=F}
 mu_0 <- 0; sd_0 <- 0.6; sig <- 1.5; mu_1 <- 0.5
 
-df <- expand.grid(rho = seq(-5, 5, length.out = 100),
+df <- expand.grid(rho = seq(5, -5, length.out = 100),
                   d_bar = c(0.01, 0.005, 0.0025),
                   d_hat = c(0.1, 0.2, 0.3))
                   #d_bar = 0.001, d_hat = 0.2)
@@ -739,33 +743,41 @@ for(i in 1:nrow(df)){
   rule <- gaussHermiteData(100)
   rule$x <- rule$x*sqrt(2)*sd_0 + mu_0
   
-  #if(df$rho[i] == -5){
-  opt <- nloptr(x, exp_u_joint, #eval_grad_f = exp_u_joint_grad,
-                lb = c(30,-41,0,-40), ub= c(1000,40,1000,40),
-                opt = list("algorithm"="NLOPT_GN_DIRECT", 
-                #opt = list("algorithm"="NLOPT_GD_STOGO", 
-                           "xtol_rel"=1.0e-6,
-                           "maxeval"=1000),
-                k=k, rho=df$rho[i], mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule, pen=F)
-
-  x <- opt$solution
+  #if(df$rho[i] == 5){
+  # opt <- nloptr(x, exp_u_joint, #eval_grad_f = exp_u_joint_grad,
+  #               lb = c(30,-41,0,-40), ub= c(1000,40,1000,40),
+  #               opt = list("algorithm"="NLOPT_GN_DIRECT",
+  #               #opt = list("algorithm"="NLOPT_GD_STOGO",
+  #                          "xtol_rel"=1.0e-6,
+  #                          "maxeval"=1000),
+  #               k=k, rho=df$rho[i], mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule, pen=F)
+  # 
+  # x <- opt$solution
   #}
-
-  opt <- nloptr(x, exp_u_joint, eval_grad_f = exp_u_joint_grad,
-                lb = c(30,-41,0,-40), ub= c(1000,40,1000,40),
-                opt = list("algorithm"="NLOPT_LN_SBPLX",
-                #opt = list("algorithm"="NLOPT_LD_MMA",           
-                           #"ftol_rel"=1.0e-2,
-                           "maxeval"=5000),
-                k=k, rho=df$rho[i], mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule, pen=F)
-
-  x <- opt$solution
+  # 
+  # opt <- nloptr(x, exp_u_joint, #eval_grad_f = exp_u_joint_grad,
+  #               lb = c(30,-41,0,-40), ub= c(1000,40,1000,40),
+  #               opt = list("algorithm"="NLOPT_LN_SBPLX",
+  #               #opt = list("algorithm"="NLOPT_LD_MMA",
+  #                          #"ftol_rel"=1.0e-2,
+  #                          "maxeval"=5000),
+  #               k=k, rho=df$rho[i], mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule, pen=F)
+  # 
+  # x <- opt$solution
+  
+  if(df$rho[i] == 5) x <- c(50, 0.001, 100, 0.001)
+  opt <- optim(x, exp_u_joint, gr = exp_u_joint_grad,
+              lower = c(30,-40,0.0001,-40), upper = c(1000,40,1000,40), method = "L-BFGS-B",
+              control = list(factr = 1e5),
+              k=k, rho=df$rho[i], mu_0=mu_0, sd_0=sd_0, sig=sig, rule=rule, pen=F)
+   
+  x <- opt$par
 
   r <- c(x, 1-pnorm(x[2]/sqrt(2*(sig^2)/x[1])),
     1-pnorm(x[2], mu_1, sqrt(2*sig^2/x[1])),
     1-pnorm(x[4]/sqrt(2*(sig^2)/x[3])),
     1-pnorm(x[4], mu_1, sqrt(2*sig^2/x[3])),
-    opt$objective)
+    opt$value)
   
   rs <- cbind(rs,r)
   #print(c(df$d_bar[i], df$rho[i]))
@@ -909,8 +921,6 @@ ggplot(df[df$d_hat < 0.5,], aes(rho, reg, colour=as.factor(d_hat), linetype=as.f
 ```
 
 
-
-
 Note that we may be able to obtain derivatives of the expected utility with respect to the four design variables, which could lead to a faster or more reliable optimisation.
 
 In this case, there is not much distinction in the results of the constrained and unconstrained case, so we focus on the latter here. The above plots shows how error rates and sample size of each trial vary with $\rho$, the attitude to risk (where higher $\rho$ means more risk-averse). We see a clear trend that as we become more risk-averse, the type I error rate in both pilot and conformatory trials decreases. Power in the pilot trial deceases with risk-aversion, while it increases in the main trial. The sample size of both trials increases. The above plot animates with varying $\bar{d}$, the cost of sampling (higher value meaning higher cost). As the cost increases, we see lower sample sizes in each trial, lower power, and increased type I error rate. 
@@ -918,6 +928,95 @@ In this case, there is not much distinction in the results of the constrained an
 Over the ranges of parameters considered here, it may be noted that the type I error rate in the pilot trial is always much higher than 0.025 and much lower than 1, being instead in the range (0.219, 0.595). For the main trial, the largest type I error rate is 0.062, but can be as low as 0.000002. Power, on the other hand, are often not far from the conventional choices of 0.8 and 0.9. In the pilot trial they  ranged from 0.858 to 0.980, while in the main trail the range was (0.791, 0.946).
 
 Regarding the conventional strategy of not testing in the pilot, we don't find any scenarios here where this is optimal. The results do suggest, however, that as we become more risk-seeking we have a higher optimal type I error in the pilot. And indeed  we see that as we go beyond the range considered above, we do find optimal pilot designs where $\alpha_1$ approaches 1 (for example, when $\rho = -10$). Given that we might in general expect decision-makers to be risk-averese or at best risk-neutral, these results both suggest that the current strategy is far from optimal and give some insight into why this is (i.e. not testing is a risky and inefficient strategy, so only attractive when we are seeking risk).
+
+### Biased effects
+
+Our presentation has been motivated  by the arguments around precision - i.e. that the small sample in a pilot trial will not provide enough information to allow reliable decision making. The other, and perhaps more persuasive, argument against assessing efficacy in pilots is that the effect size may differ. Recently, Ying et al. (2023) have reviewed pilot - main trial pairs and summarised the differences in their effect estimates. As we note in the discussion, in the extreme case where the amount of bias is unknown then it will be optimal to not assess efficacy in the pilot. Ying suggest the bias is typically not so large. By characterising the bias using a probability distribution we can ask - in what scenarios (as described by our uncertainty regarding the bias) will it be optimal to not assess effectiveness?
+
+We can accomodate this bias easily enough - our expected utility calculations are mosty the same, but now when calculating the probability of pilot success conditional on $\mu$ (which denotes the true effect in the main trial) we will now have
+
+$$
+x_1 ~|~ \mu \sim N\left(\mu + b, \frac{2\sigma^2}{n} + s^2 \right),
+$$
+
+where the pilot effect size is now distributed as $\mu + \tau$, where $\tau$ is the (additive) bias and $\tau \sim N(b, s^2)$.
+
+```{r}
+exp_u_mu_bias <- function(mu, n1, d1, n2, d2, k, rho, mu_0, sd_0, sig, b_mean, b_var)
+{
+  pow1 <- 1-pnorm(d1, mu + b_mean, sqrt(2*sig^2/n1 + b_var))
+  pow2 <- 1-pnorm(d2, mu, sqrt(2*sig^2/n2))
+  
+  su <- 0 # set_up
+  
+  if(rho > 0){
+    pow1*pow2*(1-exp(-rho*(k[1]*mu + k[2]*(n1+n2+su)))) +
+    pow1*(1-pow2)*(1-exp(-rho*(k[2]*(n1+n2+su) + k[3]))) +
+    (1-pow1)*(1-exp(-rho*(k[2]*n1 + k[3])))
+  } else if(rho < 0) {
+    pow1*pow2*(-1+exp(-rho*(k[1]*mu + k[2]*(n1+n2+su)))) +
+    pow1*(1-pow2)*(-1+exp(-rho*(k[2]*(n1+n2+su) + k[3]))) +
+    (1-pow1)*(-1+exp(-rho*(k[2]*n1 + k[3])))
+  } else {
+    pow1*pow2*(k[1]*mu + k[2]*(n1+n2+su)) +
+    pow1*(1-pow2)*(k[2]*(n1+n2+su) + k[3]) +
+    (1-pow1)*(k[2]*n1 + k[3])
+  }
+}
+
+exp_u_joint_bias <- function(x, k, rho, mu_0, sd_0, sig, b_mean, b_var, rule, pen = FALSE)
+{
+  n1 <- x[1]; d1 <- x[2]; n2 <- x[3]; d2 <- x[4]
+  u <- ghQuad(f=exp_u_mu_bias, rule=rule, n1=n1, d1=d1, n2=n2, d2=d2,
+         k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig,
+         b_mean=b_mean, b_var=b_var)/sqrt(pi)
+
+  return(-u + pen*100*(n2<n1))
+}
+
+
+mu_0 <- 0; sd_0 <- 0.6; sig <- 1.5; mu_1 <- 0.5;
+# Use utility parameter values from the illustrative example
+rho <- 2; d_bar <- 0.005; d_hat <- 0.3
+
+# Mean bias has no influence so keep at 0 and just vary bias uncertainty
+df <- expand.grid(b_var = seq(0.01, 0.7, length.out = 50)^2,
+                  b_mean = c(0))
+
+rs <- NULL
+x <- c(50, 0.001, 100, 0.001)
+for(i in 1:nrow(df)){
+  
+  k <- get_ks(d_bar, d_hat, n=50)
+  rule <- gaussHermiteData(100)
+  rule$x <- rule$x*sqrt(2)*sd_0 + mu_0
+  
+  x <- c(50, 0.001, 100, 0.001)
+  opt <- optim(x, exp_u_joint_bias, #gr = exp_u_joint_grad,
+              lower = c(00,-40,0.0001,-40), upper = c(1000,40,1000,40), method = "L-BFGS-B",
+              control = list(factr = 1e5),
+              k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, b_mean = df$b_mean[i], b_var = df$b_var[i],
+              rule=rule, pen=F)
+   
+  x <- opt$par
+
+  r <- c(x, 1-pnorm(x[2]/sqrt(2*(sig^2)/x[1])),
+    1-pnorm(x[2], mu_1, sqrt(2*sig^2/x[1])),
+    1-pnorm(x[4]/sqrt(2*(sig^2)/x[3])),
+    1-pnorm(x[4], mu_1, sqrt(2*sig^2/x[3])),
+    opt$value)
+  
+  rs <- cbind(rs,r)
+}
+
+df <- cbind(df, t(rs))
+
+names(df) <- c("b_var", "b_mean", "n1", "d1", "n2", "d2", "a1", "b1", "a2", "b2", "u")
+df
+```
+
+We find that the parameter $b$ has almost no influence on our results, suggesting we simply shift our criteria over to accommodate for this bias when testing at the pilot stage. The parameter $s^2$ is influential and in the way we would expect - as the uncertainty around the bias increases, the pilot information becomes less useful and we lower the pilot sample, increase the pilot type I error rate, and decrease the main trial type I error rate to compensate. We also see the main trial sample size decreasing. 
+
 
 ## Discussion
 

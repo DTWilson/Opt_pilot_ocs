@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6840 64-bit) (preloaded format=pdflatex 2019.3.21)  13 NOV 2019 14:21
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6840 64-bit) (preloaded format=pdflatex 2019.3.21)  18 FEB 2021 19:13
 entering extended mode
 **./Opt_pilot_ocs.tex
 (Opt_pilot_ocs.tex
@@ -486,24 +486,24 @@ LaTeX Font Warning: Font shape `OT1/cmss/m/it' in size <12> not available
 <./figures/sens_p.pdf, id=60, 397.485pt x 255.95625pt>
 File: ./figures/sens_p.pdf Graphic file (type pdf)
 <use ./figures/sens_p.pdf>
-Package pdftex.def Info: ./figures/sens_p.pdf  used on input line 270.
+Package pdftex.def Info: ./figures/sens_p.pdf  used on input line 272.
 (pdftex.def)             Requested size: 317.98842pt x 204.76526pt.
  [10 <./figures/sens_p.pdf>]
 <./figures/sens_u.pdf, id=69, 397.485pt x 255.95625pt>
 File: ./figures/sens_u.pdf Graphic file (type pdf)
 <use ./figures/sens_u.pdf>
-Package pdftex.def Info: ./figures/sens_u.pdf  used on input line 280.
+Package pdftex.def Info: ./figures/sens_u.pdf  used on input line 282.
 (pdftex.def)             Requested size: 317.98842pt x 204.76526pt.
  [11 <./figures/sens_u.pdf>]
 <./Figures/eval_np30.pdf, id=79, 511.9125pt x 454.69875pt>
 File: ./Figures/eval_np30.pdf Graphic file (type pdf)
 <use ./Figures/eval_np30.pdf>
-Package pdftex.def Info: ./Figures/eval_np30.pdf  used on input line 298.
+Package pdftex.def Info: ./Figures/eval_np30.pdf  used on input line 300.
 (pdftex.def)             Requested size: 409.53056pt x 363.75949pt.
 <./Figures/eval_unrest.pdf, id=80, 511.9125pt x 454.69875pt>
 File: ./Figures/eval_unrest.pdf Graphic file (type pdf)
 <use ./Figures/eval_unrest.pdf>
-Package pdftex.def Info: ./Figures/eval_unrest.pdf  used on input line 311.
+Package pdftex.def Info: ./Figures/eval_unrest.pdf  used on input line 313.
 (pdftex.def)             Requested size: 409.53056pt x 363.75949pt.
 
 [12] [13 <./Figures/eval_np30.pdf>] [14 <./Figures/eval_unrest.pdf>]
@@ -511,33 +511,32 @@ Package pdftex.def Info: ./Figures/eval_unrest.pdf  used on input line 311.
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [19])
-[20] [21]
-Overfull \hbox (7.05524pt too wide) detected at line 493
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [20]
+[21]
+Overfull \hbox (7.05524pt too wide) detected at line 495
 [][]
  []
 
 
-Overfull \hbox (24.86913pt too wide) detected at line 511
+Overfull \hbox (24.86913pt too wide) detected at line 513
 []
  []
 
-[22] [23] (Opt_pilot_ocs.aux)
+[22] [23] [24] (Opt_pilot_ocs.aux)
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 0.72pt have occurred.
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
  ) 
 Here is how much of TeX's memory you used:
- 5761 strings out of 492970
- 84211 string characters out of 3135846
- 164361 words of memory out of 3000000
- 9474 multiletter control sequences out of 15000+200000
+ 5758 strings out of 492970
+ 84148 string characters out of 3135846
+ 166344 words of memory out of 3000000
+ 9471 multiletter control sequences out of 15000+200000
  19040 words of font info for 75 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 43i,16n,40p,1289b,440s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 43i,16n,40p,1289b,439s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Pr
 ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Fi
 les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKT
@@ -565,9 +564,9 @@ e1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public
 7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti9.pfb><C:
 /Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt9.pfb><C:/Program 
 Files/MiKTeX 2.9/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Opt_pilot_ocs.pdf (23 pages, 536426 bytes).
+Output written on Opt_pilot_ocs.pdf (24 pages, 537614 bytes).
 PDF statistics:
- 230 PDF objects out of 1000 (max. 8388607)
+ 233 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  26 words of extra memory for PDF output out of 10000 (max. 10000000)
 
