@@ -931,21 +931,23 @@ Regarding the conventional strategy of not testing in the pilot, we don't find a
 
 ### Biased effects
 
-Our presentation has been motivated  by the arguments around precision - i.e. that the small sample in a pilot trial will not provide enough information to allow reliable decision making. The other, and perhaps more persuasive, argument against assessing efficacy in pilots is that the effect size may differ. Recently, Ying et al. (2023) have reviewed pilot - main trial pairs and summarised the differences in their effect estimates. As we note in the discussion, in the extreme case where the amount of bias is unknown then it will be optimal to not assess efficacy in the pilot. Ying suggest the bias is typically not so large. By characterising the bias using a probability distribution we can ask - in what scenarios (as described by our uncertainty regarding the bias) will it be optimal to not assess effectiveness?
+Our presentation has been motivated  by the arguments around precision - i.e. that the small sample in a pilot trial will not provide enough information to allow reliable decision making. The other, and perhaps more persuasive, argument against assessing efficacy in pilots is that the effect size may differ. By characterising the differences between pilot and main trial effects using a probability distribution we can ask - in what scenarios will it be optimal to not assess effectiveness?
 
-We can accomodate this bias easily enough - our expected utility calculations are mosty the same, but now when calculating the probability of pilot success conditional on $\mu$ (which denotes the true effect in the main trial) we will now have
+We can accommodate this easily enough by now modelling the effect at pilot and main trial stages using a bivariate normal distribution. For simplicity we'll assume that the effects have the same marginal distributions (i.e. normal with mean $m_0$ and variance $sd_0^2$), and denote their correlation by $\tau$. The only thing we need to change is the calculation of power at the pilot stage in our conditional expected utility, now needing to use the distribution of the pilot estimate conditional on the true main trial effect $\mu$:
 
 $$
-x_1 ~|~ \mu \sim N\left(\mu + b, \frac{2\sigma^2}{n} + s^2 \right),
+x_1 ~|~ \mu \sim N\left(\mu + \tau(\mu - \mu_0), (1 - \tau^2)s_0^2 + \frac{2\sigma^2}{n_1}\right).
 $$
-
-where the pilot effect size is now distributed as $\mu + \tau$, where $\tau$ is the (additive) bias and $\tau \sim N(b, s^2)$.
 
 ```{r}
-exp_u_mu_bias <- function(mu, n1, d1, n2, d2, k, rho, mu_0, sd_0, sig, b_mean, b_var)
+exp_u_mu_bias <- function(mu, n1, d1, n2, d2, k, rho, mu_0, sd_0, sig, cor_pm)
 {
-  pow1 <- 1-pnorm(d1, mu + b_mean, sqrt(2*sig^2/n1 + b_var))
-  pow2 <- 1-pnorm(d2, mu, sqrt(2*sig^2/n2))
+  # set variance of main equal to pilot
+  var_m <- sd_0^2
+  
+  pow1 <- 1 - pnorm(d1, mu_0 + cor_pm*(mu - mu_0)*sqrt(sd_0^2)/sqrt(var_m), sqrt((1 - cor_pm^2)*(sd_0^2) + 2*sig^2/n1))
+
+  pow2 <- 1 - pnorm(d2, mu, sqrt(2*sig^2/n2))
   
   su <- 0 # set_up
   
@@ -964,24 +966,22 @@ exp_u_mu_bias <- function(mu, n1, d1, n2, d2, k, rho, mu_0, sd_0, sig, b_mean, b
   }
 }
 
-exp_u_joint_bias <- function(x, k, rho, mu_0, sd_0, sig, b_mean, b_var, rule, pen = FALSE)
+exp_u_joint_bias <- function(x, k, rho, mu_0, sd_0, sig, cor_pm, rule, pen = FALSE)
 {
   n1 <- x[1]; d1 <- x[2]; n2 <- x[3]; d2 <- x[4]
   u <- ghQuad(f=exp_u_mu_bias, rule=rule, n1=n1, d1=d1, n2=n2, d2=d2,
          k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig,
-         b_mean=b_mean, b_var=b_var)/sqrt(pi)
+         cor_pm=cor_pm)/sqrt(pi)
 
   return(-u + pen*100*(n2<n1))
 }
 
-
 mu_0 <- 0; sd_0 <- 0.6; sig <- 1.5; mu_1 <- 0.5;
+
 # Use utility parameter values from the illustrative example
 rho <- 2; d_bar <- 0.005; d_hat <- 0.3
 
-# Mean bias has no influence so keep at 0 and just vary bias uncertainty
-df <- expand.grid(b_var = seq(0.01, 0.7, length.out = 50)^2,
-                  b_mean = c(0))
+df <- data.frame(cor_pm = seq(0.6, 1, length.out = 10))
 
 rs <- NULL
 x <- c(50, 0.001, 100, 0.001)
@@ -989,13 +989,14 @@ for(i in 1:nrow(df)){
   
   k <- get_ks(d_bar, d_hat, n=50)
   rule <- gaussHermiteData(100)
-  rule$x <- rule$x*sqrt(2)*sd_0 + mu_0
+  rule$x <- rule$x*sqrt(2)*sqrt(sd_0^2) + mu_0
   
   x <- c(50, 0.001, 100, 0.001)
+
   opt <- optim(x, exp_u_joint_bias, #gr = exp_u_joint_grad,
-              lower = c(00,-40,0.0001,-40), upper = c(1000,40,1000,40), method = "L-BFGS-B",
+              lower = c(30,-41,0.0001,-40), upper = c(1000, 40,1000,40), method = "L-BFGS-B",
               control = list(factr = 1e5),
-              k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, b_mean = df$b_mean[i], b_var = df$b_var[i],
+              k=k, rho=rho, mu_0=mu_0, sd_0=sd_0, sig=sig, cor_pm=df$cor_pm[i],
               rule=rule, pen=F)
    
   x <- opt$par
@@ -1011,12 +1012,18 @@ for(i in 1:nrow(df)){
 
 df <- cbind(df, t(rs))
 
-names(df) <- c("b_var", "b_mean", "n1", "d1", "n2", "d2", "a1", "b1", "a2", "b2", "u")
+names(df) <- c("cor_pm", "n1", "d1", "n2", "d2", "a1", "b1", "a2", "b2", "u")
 df
 ```
 
-We find that the parameter $b$ has almost no influence on our results, suggesting we simply shift our criteria over to accommodate for this bias when testing at the pilot stage. The parameter $s^2$ is influential and in the way we would expect - as the uncertainty around the bias increases, the pilot information becomes less useful and we lower the pilot sample, increase the pilot type I error rate, and decrease the main trial type I error rate to compensate. We also see the main trial sample size decreasing. 
+So, we find that to keep testing at a non-negligible level in the pilot we need a good degree of correlation between the true effects. To get a feel for how likely this is, we can think about what the correlation implies for the difference between the effects. The standard deviation of the difference will be
 
+$$
+\sqrt{2s_0^2(1 - \tau)},
+$$
+So e.g. $\tau = 0.99 \rightarrow 0.085, \tau = 0.95 \rightarrow 0.190, \tau = 0.9 \rightarrow 0.268, \tau = 0.8 \rightarrow 0.379$. This view supports the case for a high correlation - we would be surprised if the difference in true effects was quite likely to be above half of the MCID, for example. E.g. for $\tau = 0.95$ the probability that the absolute difference is greater than 0.25 is 0.19.
+
+Note that the utility of the programme will range between the unrestrictied and no-pilot-testing examples earlier, since the former assumed perfect correlation and the latter strategy becomes optimal when the correlation is weak.
 
 ## Discussion
 
@@ -1081,7 +1088,7 @@ If the pilot trial has collected data on feasibility aspects such as recruitment
 
 When an analytic power function is not available, the expectation can be estimated by sampling trial data and analysis conditional on each posterior sample. This will then add a very significant computational burden, taking us to an expensive optimisation problem which we can solve using EGO.
 
-From a pilot design perspective, we can look at value of information if we can simulate pilot data and for each data set quoickly obtain the subsequent main trial design and its expected utility.
+From a pilot design perspective, we can look at value of information if we can simulate pilot data and for each data set quickly obtain the subsequent main trial design and its expected utility.
 
 * Testing feasibility in the pilot 
 
@@ -1613,3 +1620,5 @@ plot(x, bsMat %*% a)
 y <- bsMat %*% a + 1
 plot(x, y^2)
 ```
+
+
