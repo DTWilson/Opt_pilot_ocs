@@ -1,0 +1,10 @@
+% latex table generated in R 4.2.2 by xtable 1.8-4 package
+% Fri Oct 13 11:09:45 2023
+\begin{tabular}{rrrrrrrr}
+  \toprule
+$\tau$ & $n_1$ & $n_2$ & $\alpha_1$ & $\beta_1$ & $\alpha_2$ & $\beta_2$ & Expected utility \\ 
+  \midrule
+0.9 & 30 & 134 & 0.69 & 0.963 & 0.034 & 0.818 & -0.42656 \\ 
+  1.0 & 41 & 146 & 0.39 & 0.890 & 0.041 & 0.868 & -0.42874 \\ 
+   \bottomrule
+\end{tabular}
