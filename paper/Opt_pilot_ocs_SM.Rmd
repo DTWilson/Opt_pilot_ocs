@@ -2,7 +2,12 @@
 title: "Optimising error rates in programmes of pilot and definitive trials using Bayesian statistical decision theory - supplementary material"
 author: "D. T. Wilson"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: html_document
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
 ---
 
 ```{r setup, include=FALSE}
@@ -29,37 +34,32 @@ This document provides the code implementing the methods described in the associ
 
 ### Value
 
-First we set up our value function based on the elicited preference parameters $\bar{d}, \hat{d}$ and $n_*$:
+As given in the paper, we use a value function which has three attributes: $n$ (the total sample size), $d$ (the change in mean outcome following the pilot and main trial programme), and $b$ (an indicator that the experimental treatment is not adopted over the control).
+
+$$
+v(n, d, s) = k_n n + k_d d + k_b b.
+$$
+
+To start, we use the elicited preference parameters $\bar{d}, \hat{d}$ and $n_*$ to obtain the weights $k_n, k_d$ and $k_b$:
 
 ```{r}
 get_ks <- function(d_bar, d_hat, n)
 {
   k_d <- 1/(1 + d_hat - d_bar/n)
   k_n <- -k_d*d_bar/n
-  k_c <- 1 - k_d - k_n
+  k_b <- 1 - k_d - k_n
   
-  return(c(k_d, k_n, k_c))
-}
-
-value <- function(mu, n, d_hat, d_bar)
-{
-  ks <- get_ks(d_bar, d_hat)
-  k_d <- ks[1]; k_n <- ks[2]; k_c <- ks[3]
-  
-  v_pos <- k_d*mu + k_n*n
-  v_neg <- 0 + k_n*n + k_c
-  
-  return(c(v_pos, v_neg))
+  return(c(k_d, k_n, k_b))
 }
 ```
 
 ### Utility
 
-As given in the paper, we use an exponential utility based on our value function, which itself has three attributes $n$ (the total sample size), $d$ (the change in mean outcome following the pilot and main trial programme), and $c$ (an indicator of the fixed cost difference between the control and experimental treatments). This utility is parameterised by $\rho$, which encodes the decision maker's attitude to risk.
+We use an exponential utility parameterised by $\rho$, which encodes the decision maker's attitude to risk.
 
-* $u(n, d, c) = 1 - e^{-\rho v(n, d, c)}, \rho > 0$,
-* $u(n, d, c) = v(n, d, c), \rho = 0$.
-* $u(n, d, c) = -1 + e^{-\rho v(n, d, c)}, \rho > 0$,
+* $u(n, d, b) = 1 - e^{-\rho v(n, d, b)}, \rho > 0$,
+* $u(n, d, b) = v(n, d, b), \rho = 0$.
+* $u(n, d, b) = -1 + e^{-\rho v(n, d, b)}, \rho > 0$,
 
 ### MEU for an external pilot and confirmatory trial programme
 
@@ -375,11 +375,12 @@ to_plot_p <- expand.grid(mu_0 = seq(min(df_p$mu_0), max(df_p$mu_0), l=50),
                          sd_0 = seq(min(df_p$sd_0), max(df_p$sd_0), l=50))
 to_plot_p$dif <- -predict(fit_p, newdata = to_plot_p)
 
-p_p <- ggplot(to_plot_p, aes(mu_0, sd_0, z=dif)) + geom_contour(aes(colour=..level..)) +
+ggplot(to_plot_p, aes(mu_0, sd_0, z=dif)) + 
+  geom_contour_filled(breaks = c(0, 2, 4, 6, 8, 10), alpha = 0.5) +
+  scale_fill_brewer(name="Regret", palette = "YlGnBu") + 
   theme_minimal() +
-  xlab( expression(paste("Prior mean, ", m[0]))) + 
-  ylab( expression(paste("Prior standard deviation, ", s[0]))) 
-direct.label(p_p, method = "bottom.pieces")
+  xlab( expression(paste("Prior mean, ", m))) + 
+  ylab( expression(paste("Prior standard deviation, ", s))) 
 
 #ggsave("./figures/sens_p.pdf", height=9, width=14, units="cm")
 #ggsave("./figures/sens_p.eps", height=9, width=14, units="cm", device = cairo_ps())
@@ -390,11 +391,12 @@ to_plot_u <- expand.grid(rho = seq(0,4,l=50),
                          d_bar = seq(0.001,0.01, l=50))
 to_plot_u$dif <- -predict(fit_u, newdata = to_plot_u)
 
-p_u <- ggplot(to_plot_u, aes(rho, d_bar, z=dif)) + geom_contour(aes(colour=..level..), breaks=seq(2,20,2)) +
+ggplot(to_plot_u, aes(rho, d_bar, z=dif)) + 
+  geom_contour_filled(breaks = seq(0, 45, 5), alpha = 0.5) +
+  scale_fill_brewer(name="Regret", palette = "YlGnBu") + 
   theme_minimal() +
   xlab( expression(paste("Risk attitude, ", rho))) + 
   ylab( expression(paste("Cost of sampling, ", bar(d)))) 
-direct.label(p_u, method = "bottom.pieces")
 
 #ggsave("./figures/sens_u.pdf", height=9, width=14, units="cm")
 #ggsave("./figures/sens_u.eps", height=9, width=14, units="cm", device = cairo_ps())
@@ -404,7 +406,7 @@ direct.label(p_u, method = "bottom.pieces")
 
 We now find optimal designs for a range of problems. We consider two cases. Firstly, we set a lower limit on the pilot sample size of 30, corresponding to cases where we want this sample at least for feasibility questions. Secondly, we remove this lower limit and allow the pilot size to be as small as is optimal, including not doing the pilot at all. 
 
-```{r, eval=F}
+```{r}
 mu_0 <- 0; sd_0 <- 0.6; sig <- 1.5; mu_1 <- 0.5
 
 df <- expand.grid(rho = seq(5, -5, length.out = 100),
@@ -453,9 +455,9 @@ names(df) <- c("rho", "d_bar", "d_hat", "n1", "d1", "n2", "d2", "a1", "b1", "a2"
 
 ```{r}
 #df <- readRDS("../data/opt_joint_unrest.Rda")
-df <- readRDS("../data/opt_joint_np30.Rda")
+#df <- readRDS("./data/opt_joint_np30.Rda")
 
-df2 <- df#[df$d_bar == 0.02,]
+df2 <- df
 df2$n1 <- df2$n1/500; df2$n2 <- df2$n2/500; 
 df2 <- melt(df2, id.vars = c("rho", "d_bar", "d_hat"))
 df2 <- cbind(df2[substr(df2$variable,2,2) == "1",], df2[substr(df2$variable,2,2) == "2",4:5])
@@ -614,10 +616,10 @@ tab
 
 ### Heteregeneous effects
 
-We need to change is the calculation of power at the pilot stage in our conditional expected utility, now needing to use the distribution of the pilot estimate conditional on the true main trial effect $\mu$:
+We need to change is the calculation of power at the pilot stage in our conditional expected utility, now needing to use the distribution of the pilot estimate conditional on the true main trial effect $\mu$. For our illustration, we are assuming the pilot and main trial effects have the same marginal priors with means $m$ and standard deviations $s$ and a correlation of $\tau$, giving
 
 $$
-x_1 ~|~ \mu \sim N\left(\mu + \tau(\mu - \mu_0), (1 - \tau^2)s_0^2 + \frac{2\sigma^2}{n_1}\right).
+x_1 ~|~ \mu \sim N\left(m + \tau(\mu - m), (1 - \tau^2)s^2 + \frac{2\sigma^2}{n_1}\right).
 $$
 
 ```{r}
@@ -660,7 +662,7 @@ exp_u_joint_bias <- function(x, k, rho, mu_0, sd_0, sig, cor_pm, rule, pen = FAL
 mu_0 <- 0; sd_0 <- 0.6; sig <- 1.5; mu_1 <- 0.5;
 
 # Use utility parameter values from the illustrative example
-rho <- 2; d_bar <- 0.005; d_hat <- 0.3
+rho <- -2; d_bar <- 0.005; d_hat <- 0.3
 
 # Find optimal designs for different correlations
 df <- data.frame(cor_pm = seq(0.6, 1, 0.01))
@@ -672,8 +674,6 @@ for(i in 1:nrow(df)){
   k <- get_ks(d_bar, d_hat, n=50)
   rule <- gaussHermiteData(100)
   rule$x <- rule$x*sqrt(2)*sqrt(sd_0^2) + mu_0
-  
-  x <- c(50, 0.001, 100, 0.001)
 
   opt <- optim(x, exp_u_joint_bias, #gr = exp_u_joint_grad,
               lower = c(30,-41,0.0001,-40), upper = c(1000, 40,1000,40), method = "L-BFGS-B",
@@ -745,25 +745,19 @@ Note that the utility of the programme will range between the unrestrictied and 
 
 ## Figures
 
-Plot the operating charateristic cuves as contours for different pilot sample sizes, highlighting the options of a conventional type I error rate and rule-of-thumb sample size. Rules of thumb 20 and 25 come from [@Whitehead2015]; 30 is attributed to [@Browne1995] by [@Lancaster2004] and thers, but does not actually recommend it; 35 comes from [@Teare2014].
-
 ```{r}
 df <- expand.grid(a = seq(0,1,0.001),
-                  n = c(25, 50))
+                  n = c(35))
 
 df$b <- apply(df, 1, function(x) 1 - power.t.test(n=x[2], delta=0.5, sd=1.5, sig.level = x[1], alternative = "o")$power)
 
-ggplot(df, aes(a,b, colour=as.factor(n), linetype=as.factor(n))) + geom_line() +
-  scale_color_manual(values=c("black", "grey40")) +
+ggplot(df, aes(a,b)) + geom_line() +
   coord_fixed() +
   xlab(expression(paste("Type I error rate, ", alpha))) +
   ylab(expression(paste("Type II error rate, ", beta))) +
   theme_minimal() +
-  geom_point(data=df[df$a == 0.025 & df$n == 25,], colour=cols[1], size=2) +
-  geom_point(data=df[df$a == 0.75 & df$n == 25,], colour=cols[3], size=2) +
-  geom_point(data=df[df$a == 1 & df$n == 25,], colour=cols[2], size=2) +
-  geom_point(data=df[df$a == 0.4 & df$n == 50,], colour=cols[4], size=2) +
-  labs(colour = "n", linetype = "n")
+  geom_point(data=df[df$a == 0.75 & df$n == 35,], colour=cols[3], size=2) +
+  geom_point(data=df[df$a == 1 & df$n == 35,], colour=cols[2], size=2) 
 
 #ggsave("./figures/ocs.pdf", height=9, width=11, units="cm")
 #ggsave("./figures/ocs.eps", height=9, width=11, units="cm", device = cairo_ps())
